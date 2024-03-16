@@ -5,14 +5,16 @@ interface MyPluginSettings {
   token: string;
   marker: string;
   http_proxy: string;
+  allow_users: string[];
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
   token: "",
-  marker: "#memo",
+  marker: "#inbox",
   http_proxy: "",
+  allow_users: [],
 };
-export default class TGMemo extends Plugin {
+export default class TGInbox extends Plugin {
   settings: MyPluginSettings;
   bot: TelegramBot | null;
   botInfo: {
@@ -21,7 +23,7 @@ export default class TGMemo extends Plugin {
   };
 
   async onload() {
-    this.addSettingTab(new TGMemoSettingTab(this.app, this));
+    this.addSettingTab(new TGInboxSettingTab(this.app, this));
     await this.loadSettings();
     this.launchBot();
   }
@@ -35,7 +37,7 @@ export default class TGMemo extends Plugin {
 
   async onunload() {
     this.stopBot();
-    console.log("telegram memo unloaded");
+    console.log("telegram inbox unloaded");
   }
 
   async loadSettings() {
@@ -49,7 +51,11 @@ export default class TGMemo extends Plugin {
   async launchBot() {
     try {
       await this.stopBot();
-      this.bot = new TelegramBot(this.app, this.settings.token);
+      this.bot = new TelegramBot(
+        this.app,
+        this.settings.token,
+        this.settings.allow_users
+      );
       this.bot.start();
     } catch (error) {
       console.error("Error launching bot:", error);
@@ -62,6 +68,7 @@ export default class TGMemo extends Plugin {
     try {
       if (this.bot) {
         await this.bot.bot.stop();
+        console.log("bot stopped");
       }
     } catch (error) {
       console.error("Error stopping bot:", error);
@@ -69,12 +76,12 @@ export default class TGMemo extends Plugin {
   }
 }
 
-class TGMemoSettingTab extends PluginSettingTab {
-  plugin: TGMemo;
+class TGInboxSettingTab extends PluginSettingTab {
+  plugin: TGInbox;
   statusEl: HTMLDivElement;
   updateId: NodeJS.Timer;
 
-  constructor(app: App, plugin: TGMemo) {
+  constructor(app: App, plugin: TGInbox) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -85,7 +92,7 @@ class TGMemoSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     this.statusEl = containerEl.createDiv({
-      cls: "tg-memo-status",
+      cls: "tg-inbox-status",
       text: "Bot disconnected",
     });
 
@@ -110,8 +117,24 @@ class TGMemoSettingTab extends PluginSettingTab {
       .addButton((button) => {
         button.setButtonText("Restart").onClick(async () => {
           this.plugin.launchBot();
+          this.statusEl.setText("Restarting...");
         });
       });
+
+    new Setting(containerEl)
+      .setName("Allowed users")
+      .setDesc(
+        "List of user messages would be received.\nSeparate with a comma."
+      )
+      .addText((text) =>
+        text
+          .setPlaceholder("Enter Telegram usernames or id")
+          .setValue(this.plugin.settings.allow_users.join(","))
+          .onChange(async (value) => {
+            this.plugin.settings.allow_users = value.split(",");
+            await this.plugin.saveSettings();
+          })
+      );
   }
 
   hide() {

@@ -1,10 +1,10 @@
 {
-	"id": "telegram-memo",
-	"name": "Telegram Memo",
-	"version": "1.0.0",
+	"id": "telegram-inbox",
+	"name": "Telegram Inbox",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
-	"description": "Save messages sent to Telegram bot to diary.",
+	"description": "Save Telegram bot messages to Obsidian's Diary.",
 	"author": "icealtria",
 	"authorUrl": "https://github.com/icealtria",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
