@@ -1,18 +1,14 @@
 import { App, Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
 import { TelegramBot } from "./bot";
-
-interface MyPluginSettings {
-  token: string;
-  marker: string;
-  http_proxy: string;
-  allow_users: string[];
-}
+import { MyPluginSettings } from "./type";
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
   token: "",
   marker: "#inbox",
-  http_proxy: "",
   allow_users: [],
+  bullet: true,
+  download_dir: "/assets",
+  download_media: false,
 };
 export default class TGInbox extends Plugin {
   settings: MyPluginSettings;
@@ -51,11 +47,7 @@ export default class TGInbox extends Plugin {
   async launchBot() {
     try {
       await this.stopBot();
-      this.bot = new TelegramBot(
-        this.app,
-        this.settings.token,
-        this.settings.allow_users
-      );
+      this.bot = new TelegramBot(this.app, this.settings);
       this.bot.start();
     } catch (error) {
       console.error("Error launching bot:", error);
@@ -132,6 +124,41 @@ class TGInboxSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.allow_users.join(","))
           .onChange(async (value) => {
             this.plugin.settings.allow_users = value.split(",");
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Download Directory")
+      .setDesc("Specify the directory for downloading media files")
+      .addText((text) =>
+        text
+          .setPlaceholder("Enter download directory")
+          .setValue(this.plugin.settings.download_dir)
+          .onChange(async (value) => {
+            this.plugin.settings.download_dir = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Bullet Points")
+      .setDesc("Enable bullet points for inserted messages")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.bullet).onChange(async (value) => {
+          this.plugin.settings.bullet = value;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("Download Media")
+      .setDesc("Choose whether to download media along with messages")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.download_media)
+          .onChange(async (value) => {
+            this.plugin.settings.download_media = value;
             await this.plugin.saveSettings();
           })
       );
