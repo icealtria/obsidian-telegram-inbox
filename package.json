@@ -22,6 +22,7 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
+		"@grammyjs/files": "^1.1.0",
 		"@telegraf/entity": "^0.5.0",
 		"async-mutex": "^0.5.0",
 		"grammy": "^1.21.1",
