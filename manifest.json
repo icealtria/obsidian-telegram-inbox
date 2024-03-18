@@ -1,7 +1,7 @@
 {
 	"id": "telegram-inbox",
 	"name": "Telegram Inbox",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
 	"description": "Save Telegram bot messages to Obsidian's Diary.",
 	"author": "icealtria",

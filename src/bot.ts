@@ -1,15 +1,9 @@
-import { Bot, Composer, Context } from "grammy";
-import { App, Vault, moment } from "obsidian";
+import { Bot, Composer } from "grammy";
+import { App, Vault, moment, normalizePath } from "obsidian";
 import { insertMessage } from "./io";
 import { toMarkdownV2 } from "@telegraf/entity";
-import { toBullet } from "./utils";
-
-import { FileFlavor, hydrateFiles } from "@grammyjs/files";
-import { File } from "grammy/types";
-
-import * as fs from "fs";
+import { downloadAsArrayBuffer, getExt, getFileUrl, toBullet } from "./utils";
 import { MyPluginSettings } from "./type";
-type MyContext = FileFlavor<Context>;
 
 export class TelegramBot {
   bot: Bot;
@@ -31,8 +25,7 @@ export class TelegramBot {
       }
     });
 
-    this.bot = new Bot<MyContext>(settings.token);
-    this.bot.api.config.use(hydrateFiles(this.bot.token));
+    this.bot = new Bot(settings.token);
     this.bot.use(restrictToAllowedUsers);
     this.app = app;
 
@@ -49,7 +42,6 @@ export class TelegramBot {
     });
 
     this.bot.on("message:media", async (ctx) => {
-      console.log(ctx.message);
       if (ctx.from?.id) {
         const md = toMarkdownV2({
           caption: ctx.message.caption,
@@ -60,15 +52,18 @@ export class TelegramBot {
 
         if (settings.download_media) {
           const file = await ctx.getFile();
-          console.log(file);
           const message_id = ctx.message.message_id;
           const date = new Date(ctx.message.date * 1000);
           const dateStr = moment(date).format("YYYYMMDD");
           const filename = `${dateStr}-${message_id}`;
-          const filename_ext = await downloadFile(
+          const url = getFileUrl(file, this.bot.token);
+          const extension = getExt(file.file_path || "");
+          const filename_ext = `${filename}.${extension}`;
+
+          await downloadFile(
             this.app.vault,
-            file,
-            filename,
+            url,
+            filename_ext,
             settings.download_dir
           );
           const content = settings.bullet
@@ -95,21 +90,14 @@ export class TelegramBot {
 }
 async function downloadFile(
   vault: Vault,
-  file: File,
-  filename: string,
+  url: string,
+  filename_ext: string,
   download_dir: string
 ): Promise<string> {
-  const path = await file.download();
-  console.log("downloaded file, cached at", path);
-  const data = fs.readFileSync(path);
-
-  const extension = getExt(file.file_path || "");
-  const savePath = `${download_dir}/${filename}.${extension}`;
-  const saveFile = await vault.createBinary(savePath, data);
-
-  return saveFile.name;
-}
-
-function getExt(path: string) {
-  return path.split(".").pop();
+  const fileArrayBuffer = await downloadAsArrayBuffer(url);
+  vault.createBinary(
+    normalizePath(`${download_dir}/${filename_ext}`),
+    fileArrayBuffer
+  );
+  return filename_ext;
 }
