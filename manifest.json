@@ -3,8 +3,9 @@
 	"name": "Telegram Inbox",
 	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
-	"description": "Save Telegram bot messages to Obsidian's Diary.",
+	"description": "Receive messages from Telegram bot and add them to daily note.",
 	"author": "icealtria",
 	"authorUrl": "https://github.com/icealtria",
-	"isDesktopOnly": true
+	"isDesktopOnly": true,
+	"fundingUrl": "https://ko-fi/icealtria"
 }
