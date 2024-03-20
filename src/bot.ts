@@ -30,53 +30,50 @@ export class TelegramBot {
     this.app = app;
 
     this.bot.on("message:text", async (ctx) => {
-      if (ctx.from?.id) {
-        const md = toMarkdownV2({
-          text: ctx.message.text,
-          entities: ctx.message.entities?.filter((e) => e.type != "url"),
-        });
-        const content = settings.bullet ? toBullet(md) : md;
-        insertMessage(this.app.vault, content);
-        ctx.react("❤");
-      }
+      const md = toMarkdownV2({
+        text: ctx.message.text,
+        entities: ctx.message.entities?.filter((e) => e.type != "url"),
+      });
+      const content = settings.bullet ? toBullet(md) : md;
+      insertMessage(this.app.vault, content);
+      ctx.react("❤");
     });
 
     this.bot.on("message:media", async (ctx) => {
-      if (ctx.from?.id) {
-        const md = toMarkdownV2({
-          caption: ctx.message.caption,
-          entities: ctx.message.caption_entities?.filter(
-            (e) => e.type != "url"
-          ),
-        });
+      const md = toMarkdownV2({
+        caption: ctx.message.caption,
+        entities: ctx.message.caption_entities?.filter((e) => e.type !== "url"),
+      });
 
-        if (settings.download_media) {
-          const file = await ctx.getFile();
-          const message_id = ctx.message.message_id;
-          const date = new Date(ctx.message.date * 1000);
-          const dateStr = moment(date).format("YYYYMMDD");
-          const filename = `${dateStr}-${message_id}`;
-          const url = getFileUrl(file, this.bot.token);
-          const extension = getExt(file.file_path || "");
-          const filename_ext = `${filename}.${extension}`;
+      let content = md;
+      if (settings.download_media) {
+        const file = await ctx.getFile();
+        const message_id = ctx.message.message_id;
+        const dateStr = moment(ctx.message.date * 1000).format("YYYYMMDD");
+        const extension = getExt(file.file_path || "");
+        const filename_ext = `${dateStr}-${message_id}.${extension}`;
+        const url = getFileUrl(file, this.bot.token);
 
-          await downloadFile(
-            this.app.vault,
-            url,
-            filename_ext,
-            settings.download_dir
-          );
-          const content = settings.bullet
-            ? toBullet(`![[${filename_ext}]]${md}`)
-            : `![[${filename_ext}]]${md}`;
-          insertMessage(this.app.vault, content);
+        const downloadResult = await downloadFile(
+          this.app.vault,
+          url,
+          filename_ext,
+          settings.download_dir
+        );
+
+        if (downloadResult) {
+          content = `![[${filename_ext}]]${md}`;
         } else {
-          const content = settings.bullet ? toBullet(md) : md;
-          insertMessage(this.app.vault, content);
+          ctx.reply("Failed to download media");
         }
-
-        ctx.react("❤");
       }
+
+      if (settings.bullet) {
+        content = toBullet(content);
+      }
+
+      insertMessage(this.app.vault, content);
+      ctx.react("❤");
     });
 
     this.bot.catch((err) => {
@@ -93,11 +90,16 @@ async function downloadFile(
   url: string,
   filename_ext: string,
   download_dir: string
-): Promise<string> {
-  const fileArrayBuffer = await downloadAsArrayBuffer(url);
-  vault.createBinary(
-    normalizePath(`${download_dir}/${filename_ext}`),
-    fileArrayBuffer
-  );
-  return filename_ext;
+) {
+  try {
+    const fileArrayBuffer = await downloadAsArrayBuffer(url);
+    vault.createBinary(
+      normalizePath(`${download_dir}/${filename_ext}`),
+      fileArrayBuffer
+    );
+    return true;
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    return false;
+  }
 }

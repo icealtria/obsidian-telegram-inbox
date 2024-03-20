@@ -49,6 +49,7 @@ export default class TGInbox extends Plugin {
     try {
       await this.stopBot();
       this.bot = new TelegramBot(this.app, this.settings);
+      new Notice("Telegram bot starting");
       this.bot.start();
     } catch (error) {
       console.error("Error launching bot:", error);
@@ -62,6 +63,7 @@ export default class TGInbox extends Plugin {
       if (this.bot) {
         await this.bot.bot.stop();
         console.log("bot stopped");
+        new Notice("Telegram bot stopped");
       }
     } catch (error) {
       console.error("Error stopping bot:", error);
