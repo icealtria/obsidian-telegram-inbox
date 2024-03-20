@@ -1,8 +1,9 @@
-import { App, Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { Notice, Plugin } from "obsidian";
 import { TelegramBot } from "./bot";
-import { MyPluginSettings } from "./type";
+import { TGInboxSettings } from "./type";
+import { TGInboxSettingTab } from "./settings";
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: TGInboxSettings = {
   token: "",
   marker: "#inbox",
   allow_users: [],
@@ -11,7 +12,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
   download_media: false,
 };
 export default class TGInbox extends Plugin {
-  settings: MyPluginSettings;
+  settings: TGInboxSettings;
   bot: TelegramBot | null;
   botInfo: {
     username: string;
@@ -64,119 +65,6 @@ export default class TGInbox extends Plugin {
       }
     } catch (error) {
       console.error("Error stopping bot:", error);
-    }
-  }
-}
-
-class TGInboxSettingTab extends PluginSettingTab {
-  plugin: TGInbox;
-  statusEl: HTMLDivElement;
-  updateId: NodeJS.Timer;
-
-  constructor(app: App, plugin: TGInbox) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
-  display(): void {
-    const { containerEl } = this;
-
-    containerEl.empty();
-
-    this.statusEl = containerEl.createDiv({
-      cls: "tg-inbox-status",
-      text: "Bot disconnected",
-    });
-
-    this.updateStatus();
-
-    this.updateId = setInterval(async () => {
-      await this.updateStatus();
-    }, 5000);
-
-    new Setting(containerEl)
-      .setName("Bot Token")
-      .setDesc("Get your bot token from @BotFather")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter your bot token")
-          .setValue(this.plugin.settings.token)
-          .onChange(async (value) => {
-            this.plugin.settings.token = value;
-            await this.plugin.saveSettings();
-          })
-      )
-      .addButton((button) => {
-        button.setButtonText("Restart").onClick(async () => {
-          this.plugin.launchBot();
-          this.statusEl.setText("Restarting...");
-        });
-      });
-
-    new Setting(containerEl)
-      .setName("Allowed users")
-      .setDesc(
-        "List of user messages would be received.\nSeparate with a comma."
-      )
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter Telegram usernames or id")
-          .setValue(this.plugin.settings.allow_users.join(","))
-          .onChange(async (value) => {
-            this.plugin.settings.allow_users = value.split(",");
-            await this.plugin.saveSettings();
-          })
-      );
-
-    new Setting(containerEl)
-      .setName("Download Directory")
-      .setDesc("Specify the directory for downloading media files")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter download directory")
-          .setValue(this.plugin.settings.download_dir)
-          .onChange(async (value) => {
-            this.plugin.settings.download_dir = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
-    new Setting(containerEl)
-      .setName("Bullet Points")
-      .setDesc("Enable bullet points for inserted messages")
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.bullet).onChange(async (value) => {
-          this.plugin.settings.bullet = value;
-          await this.plugin.saveSettings();
-        })
-      );
-
-    new Setting(containerEl)
-      .setName("Download Media")
-      .setDesc("Choose whether to download media along with messages")
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.download_media)
-          .onChange(async (value) => {
-            this.plugin.settings.download_media = value;
-            await this.plugin.saveSettings();
-          })
-      );
-  }
-
-  hide() {
-    clearInterval(this.updateId);
-  }
-  async updateStatus() {
-    try {
-      const me = await this.plugin.getBotInfo();
-      if (me) {
-        this.statusEl.setText(`Bot connected as @${me.username}`);
-      } else {
-        this.statusEl.setText("Bot not connected");
-      }
-    } catch {
-      this.statusEl.setText("Bot not connected");
     }
   }
 }

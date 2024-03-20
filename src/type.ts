@@ -1,4 +1,4 @@
-export interface MyPluginSettings {
+export interface TGInboxSettings {
   token: string;
   marker: string;
   allow_users: string[];

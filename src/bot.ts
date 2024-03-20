@@ -3,13 +3,13 @@ import { App, Vault, moment, normalizePath } from "obsidian";
 import { insertMessage } from "./io";
 import { toMarkdownV2 } from "@telegraf/entity";
 import { downloadAsArrayBuffer, getExt, getFileUrl, toBullet } from "./utils";
-import { MyPluginSettings } from "./type";
+import { TGInboxSettings } from "./type";
 
 export class TelegramBot {
   bot: Bot;
   app: App;
   allowedUsers: string[];
-  constructor(app: App, settings: MyPluginSettings) {
+  constructor(app: App, settings: TGInboxSettings) {
     const restrictToAllowedUsers = new Composer();
     restrictToAllowedUsers.use(async (ctx, next) => {
       const userId = ctx.from?.id;
