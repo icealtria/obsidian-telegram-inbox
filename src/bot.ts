@@ -29,6 +29,16 @@ export class TelegramBot {
     this.bot.use(restrictToAllowedUsers);
     this.app = app;
 
+    this.bot.command("start", (ctx) => {
+      ctx.reply("Hello! Send me a message to add it to your Obsidian daily note.\n\nYou can also add tasks by using the command /task followed by the task description.");
+    })
+
+    this.bot.command("task", async (ctx) => {
+      const task = `- [ ] ${ctx.match}`;
+      insertMessage(this.app.vault, task);
+      ctx.react("❤");
+    });
+
     this.bot.on("message:text", async (ctx) => {
       const md = toMarkdownV2({
         text: ctx.message.text,
