@@ -16,20 +16,14 @@ export class TGInboxSettingTab extends PluginSettingTab {
   
       containerEl.empty();
   
-      const settingsContainer = containerEl.createDiv({
-        cls: "tg-inbox-settings-container",
-        attr: {
-          style:
-            "display: flex; justify-content: space-between; align-items: center;",
-        },
+      const botSettingsTitle = containerEl.createDiv({
+        cls: "bot-settings-title",
       });
-  
-      const botSettingsSection = settingsContainer.createDiv();
-      botSettingsSection.createEl("h2", { text: "Bot" });
-  
-      this.statusEl = settingsContainer.createDiv({
+        
+      new Setting(botSettingsTitle).setName('Bot').setHeading();
+
+      this.statusEl = botSettingsTitle.createDiv({
         cls: "tg-inbox-status",
-        text: "❌ Bot disconnected",
       });
   
       this.updateStatus();
@@ -39,7 +33,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
       }, 5000);
   
       new Setting(containerEl)
-        .setName("Bot Token")
+        .setName("Bot token")
         .setDesc("Get your bot token from @BotFather")
         .addText((text) =>
           text
@@ -72,10 +66,10 @@ export class TGInboxSettingTab extends PluginSettingTab {
             })
         );
   
-      containerEl.createEl("h2", { text: "Message Formatting" });
+      new Setting(containerEl).setName("Message formatting").setHeading();
   
       new Setting(containerEl)
-        .setName("Bullet Points")
+        .setName("Bullet points")
         .setDesc(
           "Enable bullet points for inserted messages. But it's not good to show code and quotes."
         )
@@ -87,7 +81,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
         );
   
       new Setting(containerEl)
-        .setName("Download Media")
+        .setName("Download media")
         .setDesc("Whether to download media along with messages")
         .addToggle((toggle) =>
           toggle
@@ -99,7 +93,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
         );
   
       new Setting(containerEl)
-        .setName("Download Directory")
+        .setName("Download directory")
         .setDesc("Specify the directory for downloading media files")
         .addText((text) =>
           text
