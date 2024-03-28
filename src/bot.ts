@@ -1,8 +1,13 @@
 import { Bot, Composer } from "grammy";
 import { App, Vault, moment, normalizePath } from "obsidian";
 import { insertMessage } from "./io";
-import { toMarkdownV2 } from "@telegraf/entity";
-import { downloadAsArrayBuffer, getExt, getFileUrl, toBullet } from "./utils";
+import {
+  downloadAsArrayBuffer,
+  getExt,
+  getFileUrl,
+  toBullet,
+  toMarkdownV2,
+} from "./utils";
 import { TGInboxSettings } from "./type";
 
 export class TelegramBot {
@@ -10,6 +15,7 @@ export class TelegramBot {
   app: App;
   allowedUsers: string[];
   constructor(app: App, settings: TGInboxSettings) {
+    // Restrict to allowed users
     const restrictToAllowedUsers = new Composer();
     restrictToAllowedUsers.use(async (ctx, next) => {
       const userId = ctx.from?.id;
@@ -24,14 +30,17 @@ export class TelegramBot {
         console.log("Unauthorized user:", username || userId);
       }
     });
-
+    // Start the bot
     this.bot = new Bot(settings.token);
     this.bot.use(restrictToAllowedUsers);
     this.app = app;
 
+    // Commands
     this.bot.command("start", (ctx) => {
-      ctx.reply("Hello! Send me a message to add it to your Obsidian daily note.\n\nYou can also add tasks by using the command /task followed by the task description.");
-    })
+      ctx.reply(
+        "Hello! Send me a message to add it to your Obsidian daily note.\n\nYou can also add tasks by using the command /task followed by the task description."
+      );
+    });
 
     this.bot.command("task", async (ctx) => {
       const task = `- [ ] ${ctx.match}`;
@@ -39,6 +48,7 @@ export class TelegramBot {
       ctx.react("❤");
     });
 
+    // Messages Handlers
     this.bot.on("message:text", async (ctx) => {
       const md = toMarkdownV2({
         text: ctx.message.text,

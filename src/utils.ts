@@ -6,6 +6,8 @@ import {
 } from "obsidian-daily-notes-interface";
 import { File } from "grammy/types";
 import { requestUrl } from "obsidian";
+import { escapers, serialiseWith } from "@telegraf/entity";
+import { markdownSerialiser } from "./serialier";
 
 export async function createDiary() {
   const date = moment();
@@ -47,3 +49,5 @@ export function getFileUrl(file: File, token: string) {
   const TG_API = "https://api.telegram.org/file/bot";
   return `${TG_API}${token}/${file.file_path}`;
 }
+
+export const toMarkdownV2 = serialiseWith(markdownSerialiser, escapers.HTML)
