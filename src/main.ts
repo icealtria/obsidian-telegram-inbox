@@ -47,6 +47,10 @@ export default class TGInbox extends Plugin {
 
   async launchBot() {
     try {
+      if (!this.settings.token) {
+        new Notice("Telegram bot token not set");
+        return;
+      }
       await this.stopBot();
       this.bot = new TelegramBot(this.app, this.settings);
       new Notice("Telegram bot starting");
