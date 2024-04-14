@@ -1,23 +1,39 @@
-import { Bot, Composer } from "grammy";
-import { App, Vault, moment, normalizePath } from "obsidian";
+import { Bot, Composer, Context } from "grammy";
+import { App, moment } from "obsidian";
 import { insertMessage } from "./io";
-import {
-  downloadAsArrayBuffer,
-  getExt,
-  getFileUrl,
-  toBullet,
-  toMarkdownV2,
-} from "./utils";
+import { getExt, getFileUrl, toBullet, toMarkdownV2 } from "./utils";
 import { TGInboxSettings } from "./type";
+import { downloadAndSaveFile } from "./download";
+import { File, Message } from "grammy/types";
 
 export class TelegramBot {
   bot: Bot;
   app: App;
   allowedUsers: string[];
+
   constructor(app: App, settings: TGInboxSettings) {
-    // Restrict to allowed users
-    const restrictToAllowedUsers = new Composer();
-    restrictToAllowedUsers.use(async (ctx, next) => {
+
+    const restrictToAllowedUsers = this.createRestrictToAllowedUsersMiddleware(settings);
+
+    this.bot = new Bot(settings.token);
+    this.bot.use(restrictToAllowedUsers);
+    this.app = app;
+
+    this.setupCommands();
+
+    this.setupMessageHandlers(settings);
+
+    this.bot.catch((err) => {
+      console.error(err);
+    });
+  }
+
+  start() {
+    this.bot.start({});
+  }
+
+  private createRestrictToAllowedUsersMiddleware(settings: TGInboxSettings): Composer<any> {
+    return new Composer().use(async (ctx: Context, next) => {
       const userId = ctx.from?.id;
       const username = ctx.from?.username;
 
@@ -30,12 +46,9 @@ export class TelegramBot {
         console.log("Unauthorized user:", username || userId);
       }
     });
-    // Start the bot
-    this.bot = new Bot(settings.token);
-    this.bot.use(restrictToAllowedUsers);
-    this.app = app;
+  }
 
-    // Commands
+  private setupCommands() {
     this.bot.command("start", (ctx) => {
       ctx.reply(
         "Hello! Send me a message to add it to your Obsidian daily note.\n\nYou can also add tasks by using the command /task followed by the task description."
@@ -44,36 +57,29 @@ export class TelegramBot {
 
     this.bot.command("task", async (ctx) => {
       const task = `- [ ] ${ctx.match}`;
-      insertMessage(this.app.vault, task);
+      this.insertMessageToVault(task);
       ctx.react("❤");
     });
+  }
 
-    // Messages Handlers
+  private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on("message:text", async (ctx) => {
       const md = toMarkdownV2(ctx.message);
-      const content = settings.bullet ? toBullet(md) : md;
-      insertMessage(this.app.vault, content);
+      let content = settings.bullet ? toBullet(md) : md;
+      this.insertMessageToVault(content);
       ctx.react("❤");
     });
 
     this.bot.on("message:media", async (ctx) => {
       const md = toMarkdownV2(ctx.message);
-
       let content = md;
+
       if (settings.download_media) {
         const file = await ctx.getFile();
-        const message_id = ctx.message.message_id;
-        const dateStr = moment(ctx.message.date * 1000).format("YYYYMMDD");
-        const extension = getExt(file.file_path || "");
-        const filename_ext = `${dateStr}-${message_id}.${extension}`;
+        const filename_ext = this.generateFilename(ctx.message, file);
         const url = getFileUrl(file, this.bot.token);
 
-        const downloadResult = await downloadFile(
-          this.app.vault,
-          url,
-          filename_ext,
-          settings.download_dir
-        );
+        const downloadResult = await downloadAndSaveFile(url, filename_ext, settings.download_dir);
 
         if (downloadResult) {
           content = `![[${filename_ext}]]${md}`;
@@ -86,35 +92,18 @@ export class TelegramBot {
         content = toBullet(content);
       }
 
-      insertMessage(this.app.vault, content);
+      this.insertMessageToVault(content);
       ctx.react("❤");
     });
-
-    this.bot.catch((err) => {
-      console.error(err);
-    });
+  }
+  private generateFilename(msg: Message, file: File): string {
+    const message_id = msg.message_id;
+    const dateStr = moment(msg.date * 1000).format("YYYYMMDD");
+    const extension = getExt(file.file_path || "");;
+    return `${dateStr}-${message_id}.${extension}`;
   }
 
-  start() {
-    this.bot.start({});
-  }
-}
-
-async function downloadFile(
-  vault: Vault,
-  url: string,
-  filename_ext: string,
-  download_dir: string
-) {
-  try {
-    const fileArrayBuffer = await downloadAsArrayBuffer(url);
-    vault.createBinary(
-      normalizePath(`${download_dir}/${filename_ext}`),
-      fileArrayBuffer
-    );
-    return true;
-  } catch (error) {
-    console.error("Error downloading file:", error);
-    return false;
+  private insertMessageToVault(content: string) {
+    insertMessage(this.app.vault, content);
   }
 }

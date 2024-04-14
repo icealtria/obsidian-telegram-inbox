@@ -5,11 +5,10 @@ import {
   getDailyNote,
 } from "obsidian-daily-notes-interface";
 import { File } from "grammy/types";
-import { requestUrl } from "obsidian";
 import { escapers, serialiseWith } from "@telegraf/entity";
 import { markdownSerialiser } from "./serialier";
 
-export async function createDiary() {
+async function createDiary() {
   const date = moment();
   return createDailyNote(date);
 }
@@ -35,10 +34,6 @@ export function toBullet(content: string) {
       }
     })
     .join("\n");
-}
-
-export function downloadAsArrayBuffer(url: string): Promise<ArrayBuffer> {
-  return requestUrl(url).arrayBuffer;
 }
 
 export function getExt(path: string) {
