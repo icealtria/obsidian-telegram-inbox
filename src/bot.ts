@@ -50,20 +50,14 @@ export class TelegramBot {
 
     // Messages Handlers
     this.bot.on("message:text", async (ctx) => {
-      const md = toMarkdownV2({
-        text: ctx.message.text,
-        entities: ctx.message.entities?.filter((e) => e.type != "url"),
-      });
+      const md = toMarkdownV2(ctx.message);
       const content = settings.bullet ? toBullet(md) : md;
       insertMessage(this.app.vault, content);
       ctx.react("❤");
     });
 
     this.bot.on("message:media", async (ctx) => {
-      const md = toMarkdownV2({
-        caption: ctx.message.caption,
-        entities: ctx.message.caption_entities?.filter((e) => e.type !== "url"),
-      });
+      const md = toMarkdownV2(ctx.message);
 
       let content = md;
       if (settings.download_media) {
@@ -105,6 +99,7 @@ export class TelegramBot {
     this.bot.start({});
   }
 }
+
 async function downloadFile(
   vault: Vault,
   url: string,
