@@ -1,5 +1,5 @@
 import { Bot, Composer, Context } from "grammy";
-import { App, moment } from "obsidian";
+import { Vault, moment } from "obsidian";
 import { insertMessage } from "./io";
 import { getExt, getFileUrl, toBullet, toMarkdownV2 } from "./utils";
 import { TGInboxSettings } from "./type";
@@ -8,16 +8,16 @@ import { File, Message } from "grammy/types";
 
 export class TelegramBot {
   bot: Bot;
-  app: App;
+  vault: Vault;
   allowedUsers: string[];
 
-  constructor(app: App, settings: TGInboxSettings) {
+  constructor(vault: Vault, settings: TGInboxSettings) {
 
     const restrictToAllowedUsers = this.createRestrictToAllowedUsersMiddleware(settings);
 
     this.bot = new Bot(settings.token);
     this.bot.use(restrictToAllowedUsers);
-    this.app = app;
+    this.vault = vault;
 
     this.setupCommands();
 
@@ -32,7 +32,7 @@ export class TelegramBot {
     this.bot.start({});
   }
 
-  private createRestrictToAllowedUsersMiddleware(settings: TGInboxSettings): Composer<any> {
+  private createRestrictToAllowedUsersMiddleware(settings: TGInboxSettings): Composer<Context> {
     return new Composer().use(async (ctx: Context, next) => {
       const userId = ctx.from?.id;
       const username = ctx.from?.username;
@@ -51,7 +51,7 @@ export class TelegramBot {
   private setupCommands() {
     this.bot.command("start", (ctx) => {
       ctx.reply(
-        "Hello! Send me a message to add it to your Obsidian daily note.\n\nYou can also add tasks by using the command /task followed by the task description."
+        "Hello! Send me a message to add it to your Obsidian daily note.\n\n/task followed by the description will add it as a task item."
       );
     });
 
@@ -65,7 +65,7 @@ export class TelegramBot {
   private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on("message:text", async (ctx) => {
       const md = toMarkdownV2(ctx.message);
-      let content = settings.bullet ? toBullet(md) : md;
+      const content = settings.bullet ? toBullet(md) : md;
       this.insertMessageToVault(content);
       ctx.react("❤");
     });
@@ -96,14 +96,15 @@ export class TelegramBot {
       ctx.react("❤");
     });
   }
+
   private generateFilename(msg: Message, file: File): string {
     const message_id = msg.message_id;
     const dateStr = moment(msg.date * 1000).format("YYYYMMDD");
-    const extension = getExt(file.file_path || "");;
+    const extension = getExt(file.file_path || "");
     return `${dateStr}-${message_id}.${extension}`;
   }
 
   private insertMessageToVault(content: string) {
-    insertMessage(this.app.vault, content);
+    insertMessage(this.vault, content);
   }
 }

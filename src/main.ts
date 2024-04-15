@@ -52,7 +52,7 @@ export default class TGInbox extends Plugin {
         return;
       }
       await this.stopBot();
-      this.bot = new TelegramBot(this.app, this.settings);
+      this.bot = new TelegramBot(this.app.vault, this.settings);
       new Notice("Telegram bot starting");
       this.bot.start();
     } catch (error) {
