@@ -1,18 +1,22 @@
 import { render } from "micromustache";
 import { toMarkdownV2 } from "./markdown";
-import { Message, User } from "grammy/types";
+import { User } from "grammy/types";
+import { MessageUpdate } from '../type';
+import { moment } from "obsidian";
 
-export function generateContentFromTemplate(msg: Message, template: string): string {
+export function generateContentFromTemplate(msg: MessageUpdate, template: string): string {
     const data = buildMsgData(msg);
     return render(template, data);
 }
 
-export function buildMsgData(msg: Message) {
+export function buildMsgData(msg: MessageUpdate) {
     const forwardOrigin = getForwardOrigin(msg);
 
-    const data: Data = {
+    const data: MessageData = {
+        message_id: msg.message_id,
         text: toMarkdownV2(msg),
-        date: msg.date,
+        date: moment(msg.date * 1000).format("YYYY-MM-DD"),
+        time: moment(msg.date * 1000).format("HH:mm"),
         name: getSenderName(msg),
         username: msg.from?.username || "",
         user_id: msg.from?.id || 0,
@@ -22,7 +26,7 @@ export function buildMsgData(msg: Message) {
     return data;
 }
 
-function getForwardOrigin(msg: Message) {
+function getForwardOrigin(msg: MessageUpdate) {
     if (!msg.forward_origin) {
         return null;
     }
@@ -37,13 +41,13 @@ function getForwardOrigin(msg: Message) {
             };
         case "hidden_user":
             return {
-                from_name: msg.forward_origin.sender_user_name,
-                from_username: "",
+                forward_name: msg.forward_origin.sender_user_name,
+                forward_username: "",
             };
         case "channel":
             return {
-                from_name: msg.forward_origin.chat.title,
-                from_username: msg.forward_origin.chat.username || "",
+                forward_name: msg.forward_origin.chat.title,
+                forward_username: msg.forward_origin.chat.username || "",
             };
         default:
             console.error("Unknown forward origin type:", type);
@@ -55,15 +59,17 @@ function getUserName(user: User) {
     return `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
 }
 
-function getSenderName(msg: Message) {
-    return `${msg.from?.first_name}${msg.from?.last_name ? ' ' + msg.from.last_name : ''}`;
+function getSenderName(msg: MessageUpdate) {
+    return `${msg.from.first_name}${msg.from?.last_name ? ' ' + msg.from.last_name : ''}`;
 }
 
-interface Data {
+export interface MessageData {
+    message_id: number;
     forward_name?: string;
     forward_username?: string;
     text: string;
-    date: number;
+    date: string;
+    time: string;
     name: string;
     username: string;
     user_id: number;
