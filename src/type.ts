@@ -5,4 +5,5 @@ export interface TGInboxSettings {
   bullet: boolean;
   download_dir: string;
   download_media: boolean;
+  message_template: string;
 }

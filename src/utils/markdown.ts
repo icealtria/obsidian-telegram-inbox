@@ -1,6 +1,7 @@
+import { escapers, serialiseWith } from "@telegraf/entity";
 import { Serialiser, Node } from "@telegraf/entity/types/types";
 
-export const markdownSerialiser: Serialiser = function (match: string, node?: Node) {
+const markdownSerialiser: Serialiser = function (match: string, node?: Node) {
   switch (node?.type) {
     case "bold":
       return `**${match}**`;
@@ -39,3 +40,5 @@ export const markdownSerialiser: Serialiser = function (match: string, node?: No
       return match;
   }
 };
+
+export const toMarkdownV2 = serialiseWith(markdownSerialiser, escapers.HTML)

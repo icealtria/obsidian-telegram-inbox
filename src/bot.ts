@@ -1,10 +1,13 @@
 import { Bot, Composer, Context } from "grammy";
 import { Vault, moment } from "obsidian";
 import { insertMessage } from "./io";
-import { getExt, getFileUrl, toBullet, toMarkdownV2 } from "./utils";
 import { TGInboxSettings } from "./type";
-import { downloadAndSaveFile } from "./download";
+import { downloadAndSaveFile } from "./utils/download";
 import { File, Message } from "grammy/types";
+import { generateContentFromTemplate } from "./utils/template";
+import { toBullet } from "./utils/format";
+import { getExt, getFileUrl } from "./utils/file";
+
 
 export class TelegramBot {
   bot: Bot;
@@ -64,15 +67,15 @@ export class TelegramBot {
 
   private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on("message:text", async (ctx) => {
-      const md = toMarkdownV2(ctx.message);
-      const content = settings.bullet ? toBullet(md) : md;
-      this.insertMessageToVault(content);
+      console.log(ctx.msg)
+      const content = generateContentFromTemplate(ctx.msg, settings.message_template)
+      const finalContent = settings.bullet ? toBullet(content) : content;
+      this.insertMessageToVault(finalContent);
       ctx.react("❤");
     });
 
     this.bot.on("message:media", async (ctx) => {
-      const md = toMarkdownV2(ctx.message);
-      let content = md;
+      let content = generateContentFromTemplate(ctx.message, settings.message_template);
 
       if (settings.download_media) {
         const file = await ctx.getFile();
@@ -82,7 +85,7 @@ export class TelegramBot {
         const downloadResult = await downloadAndSaveFile(url, filename_ext, settings.download_dir);
 
         if (downloadResult) {
-          content = `![[${filename_ext}]]${md}`;
+          content = `![[${filename_ext}]]${content}`;
         } else {
           ctx.reply("Failed to download media");
         }

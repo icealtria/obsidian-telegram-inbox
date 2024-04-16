@@ -10,7 +10,9 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   bullet: true,
   download_dir: "/assets",
   download_media: false,
+  message_template: "{{ text }}",
 };
+
 export default class TGInbox extends Plugin {
   settings: TGInboxSettings;
   bot: TelegramBot | null;
