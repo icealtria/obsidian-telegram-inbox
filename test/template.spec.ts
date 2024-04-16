@@ -1,6 +1,7 @@
-import { buildMsgData, MessageData } from "../src/utils/template";
+import { buildMsgData } from "../src/utils/template";
 import { describe, expect, test } from "@jest/globals"
 import { msg, msgHidden, msgFowardUser, msgCh } from "./msgs";
+import { MessageData } from "src/type";
 
 describe('buildData', () => {
 

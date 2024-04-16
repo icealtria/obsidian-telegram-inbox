@@ -67,7 +67,6 @@ export class TelegramBot {
 
   private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on("message:text", async (ctx) => {
-      console.log(ctx.msg)
       const content = generateContentFromTemplate(ctx.msg, settings.message_template)
       const finalContent = settings.bullet ? toBullet(content) : content;
       this.insertMessageToVault(finalContent);

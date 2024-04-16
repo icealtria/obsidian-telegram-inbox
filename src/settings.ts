@@ -104,6 +104,17 @@ export class TGInboxSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           })
       );
+
+    new Setting(containerEl)
+      .setName("Message template")
+      .setDesc("Customize the message template.")
+      .addTextArea((textArea) =>
+        textArea.setValue(this.plugin.settings.message_template)
+          .onChange(async (value) => {
+            this.plugin.settings.message_template = value;
+            await this.plugin.saveSettings();
+          })
+      );
   }
 
   hide() {

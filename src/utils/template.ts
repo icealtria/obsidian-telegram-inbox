@@ -1,7 +1,7 @@
 import { render } from "micromustache";
 import { toMarkdownV2 } from "./markdown";
 import { User } from "grammy/types";
-import { MessageUpdate } from '../type';
+import { MessageData, MessageUpdate } from '../type';
 import { moment } from "obsidian";
 
 export function generateContentFromTemplate(msg: MessageUpdate, template: string): string {
@@ -61,16 +61,4 @@ function getUserName(user: User) {
 
 function getSenderName(msg: MessageUpdate) {
     return `${msg.from.first_name}${msg.from?.last_name ? ' ' + msg.from.last_name : ''}`;
-}
-
-export interface MessageData {
-    message_id: number;
-    forward_name?: string;
-    forward_username?: string;
-    text: string;
-    date: string;
-    time: string;
-    name: string;
-    username: string;
-    user_id: number;
 }
