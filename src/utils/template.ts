@@ -37,18 +37,18 @@ function getForwardOrigin(msg: MessageUpdate) {
     switch (type) {
         case "user":
             return {
-                forward_name: getUserName(msg.forward_origin.sender_user),
-                forward_username: msg.forward_origin.sender_user.username || "",
+                origin_name: getUserName(msg.forward_origin.sender_user),
+                origin_username: msg.forward_origin.sender_user.username || "",
             };
         case "hidden_user":
             return {
-                forward_name: msg.forward_origin.sender_user_name,
-                forward_username: "",
+                origin_name: msg.forward_origin.sender_user_name,
+                origin_username: "",
             };
         case "channel":
             return {
-                forward_name: msg.forward_origin.chat.title,
-                forward_username: msg.forward_origin.chat.username || "",
+                origin_name: msg.forward_origin.chat.title,
+                origin_username: msg.forward_origin.chat.username || "",
             };
         default:
             console.error("Unknown forward origin type:", type);

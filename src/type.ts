@@ -14,8 +14,8 @@ export type MessageUpdate = (Message & Update.NonChannel & Record<"text" | "from
 
 export interface MessageData {
   message_id: number;
-  forward_name?: string;
-  forward_username?: string;
+  origin_name?: string;
+  origin_username?: string;
   text: string;
   date: string;
   time: string;
