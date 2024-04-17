@@ -13,13 +13,12 @@ export function buildMsgData(msg: MessageUpdate) {
     const forwardOrigin = getForwardOrigin(msg);
 
     const data: MessageData = {
-        origin_link: getOriginLink(msg),
         message_id: msg.message_id,
         text: toMarkdownV2(msg),
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         time: moment(msg.date * 1000).format("HH:mm"),
         name: getSenderName(msg),
-        username: msg.from?.username || "",
+        username: msg.from?.username,
         user_id: msg.from?.id || 0,
         ...forwardOrigin
     };
@@ -46,10 +45,14 @@ function getForwardOrigin(msg: MessageUpdate) {
                 origin_username: "",
             };
         case "channel":
-            return {
-                origin_name: msg.forward_origin.chat.title,
-                origin_username: msg.forward_origin.chat.username || "",
-            };
+            {
+                const chat = msg.forward_origin.chat;
+                return {
+                    origin_name: chat.title,
+                    origin_username: chat.username || "",
+                    origin_link: `https://t.me/${chat.username ? chat.username : chat.id}/${msg.forward_origin.message_id}`
+                }
+            }
         default:
             console.error("Unknown forward origin type:", type);
             return null;
@@ -62,11 +65,4 @@ function getUserName(user: User) {
 
 function getSenderName(msg: MessageUpdate) {
     return `${msg.from.first_name}${msg.from?.last_name ? ' ' + msg.from.last_name : ''}`;
-}
-
-function getOriginLink(msg: MessageUpdate) {
-    if (msg.forward_origin?.type === "channel") {
-        const chat = msg.forward_origin.chat;
-        return `https://t.me/${chat.username ? chat.username : chat.id}/${msg.forward_origin.message_id}`;
-    }
 }

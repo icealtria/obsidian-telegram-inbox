@@ -20,7 +20,7 @@ export interface MessageData {
   date: string;
   time: string;
   name: string;
-  username: string;
+  username?: string;
   user_id: number;
   origin_link?: string;
 }

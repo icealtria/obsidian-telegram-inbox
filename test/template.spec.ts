@@ -8,8 +8,8 @@ describe('buildData', () => {
     test('forward message', () => {
 
         const data: MessageData = {
-            forward_name: "猫",
-            forward_username: "cat",
+            origin_name: "猫",
+            origin_username: "cat",
             message_id: 1234,
             name: "Neko ✨",
             text: "喵呜呜～",
@@ -26,8 +26,8 @@ describe('buildData', () => {
     test('hidden user', () => {
 
         const data: MessageData = {
-            forward_name: "Black Cat",
-            forward_username: "",
+            origin_name: "Black Cat",
+            origin_username: "",
             text: "I am a black cat.",
             date: "2021-07-21",
             time: "14:00",
@@ -56,15 +56,16 @@ describe('buildData', () => {
 
     test("Ch", () => {
         const data: MessageData = {
-            forward_name: "Many cats every day",
-            forward_username: "miaowu",
+            origin_name: "Many cats every day",
+            origin_username: "miaowu",
             message_id: 1234,
             text: "Cats rule the earth.",
             date: "2021-07-21",
             time: "14:00",
             name: "Neko ✨",
             username: "neko",
-            user_id: 12345
+            user_id: 12345,
+            origin_link: "https://t.me/miaowu/42065"
         }
 
         expect(buildMsgData(msgCh)).toStrictEqual(
