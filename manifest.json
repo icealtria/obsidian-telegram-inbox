@@ -6,6 +6,6 @@
 	"description": "Receive messages from Telegram bot and add them to daily note.",
 	"author": "icealtria",
 	"authorUrl": "https://github.com/icealtria",
-	"isDesktopOnly": true,
+	"isDesktopOnly": false,
 	"fundingUrl": "https://ko-fi.com/icealtria"
 }
