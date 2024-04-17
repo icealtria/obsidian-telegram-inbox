@@ -106,17 +106,27 @@ export class TGInboxSettingTab extends PluginSettingTab {
           })
       );
 
+    const message_template_desc = document.createDocumentFragment();
+    message_template_desc.append("Customize the message template. ");
+    const link = document.createElement("a")
+    link.href = "https://github.com/icealtria/obsidian-telegram-inbox/wiki/Message-template"
+    link.text = "Learn more";
+    message_template_desc.append(link)
+
+
     new Setting(containerEl)
       .setName("Message template")
-      .setDesc("Customize the message template.")
-      .addTextArea((textArea) =>
+      .setDesc(message_template_desc)
+      .addTextArea((textArea) => {
+        textArea.inputEl.rows = 3;
         textArea.setValue(this.plugin.settings.message_template)
           .onChange(async (value) => {
             this.plugin.settings.message_template = value;
             await this.plugin.saveSettings();
           })
-
-      ).addButton((button) => {
+      }
+      )
+      .addButton((button) => {
         button.setButtonText("Validate").onClick(
           () => {
             try {
