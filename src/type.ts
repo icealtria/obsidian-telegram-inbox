@@ -22,4 +22,5 @@ export interface MessageData {
   name: string;
   username: string;
   user_id: number;
+  origin_link?: string;
 }

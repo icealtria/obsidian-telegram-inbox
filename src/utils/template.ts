@@ -13,6 +13,7 @@ export function buildMsgData(msg: MessageUpdate) {
     const forwardOrigin = getForwardOrigin(msg);
 
     const data: MessageData = {
+        origin_link: getOriginLink(msg),
         message_id: msg.message_id,
         text: toMarkdownV2(msg),
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
@@ -61,4 +62,11 @@ function getUserName(user: User) {
 
 function getSenderName(msg: MessageUpdate) {
     return `${msg.from.first_name}${msg.from?.last_name ? ' ' + msg.from.last_name : ''}`;
+}
+
+function getOriginLink(msg: MessageUpdate) {
+    if (msg.forward_origin?.type === "channel") {
+        const chat = msg.forward_origin.chat;
+        return `https://t.me/${chat.username ? chat.username : chat.id}/${msg.forward_origin.message_id}`;
+    }
 }

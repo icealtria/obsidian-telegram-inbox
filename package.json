@@ -15,6 +15,7 @@
 	"devDependencies": {
 		"@jest/globals": "^29.7.0",
 		"@types/jest": "^29.5.12",
+		"@types/mustache": "^4.2.5",
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
@@ -32,6 +33,7 @@
 		"async-mutex": "^0.5.0",
 		"grammy": "^1.21.1",
 		"micromustache": "^8.0.3",
+		"mustache": "^4.2.0",
 		"obsidian-daily-notes-interface": "^0.9.4"
 	}
 }
