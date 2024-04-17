@@ -32,8 +32,7 @@
 		"@telegraf/entity": "^0.5.0",
 		"async-mutex": "^0.5.0",
 		"grammy": "^1.21.1",
-		"micromustache": "^8.0.3",
-		"mustache": "^4.2.0",
+		"mustache": "^4.1.0",
 		"obsidian-daily-notes-interface": "^0.9.4"
 	}
 }

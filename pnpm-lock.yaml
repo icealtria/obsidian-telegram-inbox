@@ -14,12 +14,9 @@ dependencies:
   grammy:
     specifier: ^1.21.1
     version: 1.21.1
-  micromustache:
-    specifier: ^8.0.3
-    version: 8.0.3
   mustache:
-    specifier: ^4.2.0
-    version: 4.2.0
+    specifier: ^4.1.0
+    version: 4.1.0
   obsidian-daily-notes-interface:
     specifier: ^0.9.4
     version: 0.9.4(@codemirror/state@6.4.1)(@codemirror/view@6.25.1)
@@ -2755,11 +2752,6 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /micromustache@8.0.3:
-    resolution: {integrity: sha512-SXjrEPuYNtWq0reR9LR2nHdzdQx/3re9HPcDGjm00L7hi2RsH5KMRBhYEBvPdyQC51RW/2TznjwX/sQLPPyHNw==}
-    engines: {node: '>=8'}
-    dev: false
-
   /mimic-fn@2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
     engines: {node: '>=6'}
@@ -2781,8 +2773,8 @@ packages:
   /ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
-  /mustache@4.2.0:
-    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+  /mustache@4.1.0:
+    resolution: {integrity: sha512-0FsgP/WVq4mKyjolIyX+Z9Bd+3WS8GOwoUTyKXT5cTYMGeauNTi2HPCwERqseC1IHAy0Z7MDZnJBfjabd4O8GQ==}
     hasBin: true
     dev: false
 

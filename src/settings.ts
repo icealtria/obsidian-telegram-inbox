@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import TGInbox from "./main";
+import * as Mustache from 'mustache';
 
 export class TGInboxSettingTab extends PluginSettingTab {
   plugin: TGInbox;
@@ -114,7 +115,23 @@ export class TGInboxSettingTab extends PluginSettingTab {
             this.plugin.settings.message_template = value;
             await this.plugin.saveSettings();
           })
-      );
+
+      ).addButton((button) => {
+        button.setButtonText("Validate").onClick(
+          () => {
+            try {
+              Mustache.parse(this.plugin.settings.message_template);
+              templateValidStatus.setText("✅ template is valid");
+            }
+            catch (err) {
+              console.error("Error parsing message template:", err);
+              templateValidStatus.setText(`❌ Error parsing template: ${err.message}`);
+            }
+          }
+        )
+      });
+
+    const templateValidStatus = containerEl.createDiv();
   }
 
   hide() {

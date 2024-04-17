@@ -1,12 +1,12 @@
-import { render } from "micromustache";
 import { toMarkdownV2 } from "./markdown";
 import { User } from "grammy/types";
 import { MessageData, MessageUpdate } from '../type';
 import { moment } from "obsidian";
+import * as Mustache from 'mustache';
 
 export function generateContentFromTemplate(msg: MessageUpdate, template: string): string {
     const data = buildMsgData(msg);
-    return render(template, data);
+    return Mustache.render(template, data);
 }
 
 export function buildMsgData(msg: MessageUpdate) {
