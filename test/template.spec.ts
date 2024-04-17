@@ -1,7 +1,19 @@
 import { buildMsgData } from "../src/utils/template";
 import { describe, expect, test } from "@jest/globals"
 import { msg, msgHidden, msgFowardUser, msgCh } from "./msgs";
-import { MessageData } from "src/type";
+import { MessageData, TGInboxSettings } from "src/type";
+
+const settings: TGInboxSettings = {
+    token: "",
+    marker: "",
+    allow_users: [],
+    bullet: false,
+    download_dir: "",
+    download_media: false,
+    message_template: "",
+    markdown_escaper: false
+}
+
 
 describe('buildData', () => {
 
@@ -19,7 +31,7 @@ describe('buildData', () => {
             username: "neko"
         }
 
-        expect(buildMsgData(msgFowardUser)).toStrictEqual(data)
+        expect(buildMsgData(msgFowardUser, settings)).toStrictEqual(data)
     })
 
 
@@ -37,7 +49,7 @@ describe('buildData', () => {
             message_id: 1234,
         }
 
-        expect(buildMsgData(msgHidden)).toStrictEqual(data)
+        expect(buildMsgData(msgHidden, settings)).toStrictEqual(data)
     })
 
     test('without forward_origin', () => {
@@ -51,7 +63,7 @@ describe('buildData', () => {
             user_id: 12345,
             message_id: 1234,
         }
-        expect(buildMsgData(msg)).toStrictEqual(data)
+        expect(buildMsgData(msg, settings)).toStrictEqual(data)
     });
 
     test("Ch", () => {
@@ -68,7 +80,7 @@ describe('buildData', () => {
             origin_link: "https://t.me/miaowu/42065"
         }
 
-        expect(buildMsgData(msgCh)).toStrictEqual(
+        expect(buildMsgData(msgCh, settings)).toStrictEqual(
             data
         )
     })

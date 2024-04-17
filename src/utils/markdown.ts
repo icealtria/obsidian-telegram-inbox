@@ -1,5 +1,6 @@
 import { escapers, serialiseWith } from "@telegraf/entity";
 import { Serialiser, Node } from "@telegraf/entity/types/types";
+import { MessageUpdate, TGInboxSettings } from "src/type";
 
 const markdownSerialiser: Serialiser = function (match: string, node?: Node) {
   switch (node?.type) {
@@ -41,4 +42,7 @@ const markdownSerialiser: Serialiser = function (match: string, node?: Node) {
   }
 };
 
-export const toMarkdownV2 = serialiseWith(markdownSerialiser, escapers.HTML)
+export function toMarkdownV2(msg: MessageUpdate, settings: TGInboxSettings): string {
+  const selectedEscaper = settings.markdown_escaper ? escapers.MarkdownV2 : escapers.HTML;
+  return serialiseWith(markdownSerialiser, selectedEscaper)(msg);
+}

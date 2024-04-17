@@ -67,14 +67,14 @@ export class TelegramBot {
 
   private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on("message:text", async (ctx) => {
-      const content = generateContentFromTemplate(ctx.msg, settings.message_template)
+      const content = generateContentFromTemplate(ctx.msg, settings)
       const finalContent = settings.bullet ? toBullet(content) : content;
       this.insertMessageToVault(finalContent);
       ctx.react("❤");
     });
 
     this.bot.on("message:media", async (ctx) => {
-      let content = generateContentFromTemplate(ctx.message, settings.message_template);
+      let content = generateContentFromTemplate(ctx.message, settings);
 
       if (settings.download_media) {
         const file = await ctx.getFile();

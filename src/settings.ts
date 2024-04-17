@@ -106,6 +106,21 @@ export class TGInboxSettingTab extends PluginSettingTab {
           })
       );
 
+    new Setting(containerEl).setName("Advanced").setHeading();
+
+
+    new Setting(containerEl)
+      .setName("Markdown escaper")
+      .setDesc("Use Markdown escaper for text. For example: '[link](https://example.com)' will display as '[link](https://example.com)' instead of a link.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.markdown_escaper)
+          .onChange(async (value) => {
+            this.plugin.settings.markdown_escaper = value;
+            await this.plugin.saveSettings();
+          });
+      });
+
+
     const message_template_desc = document.createDocumentFragment();
     message_template_desc.append("Customize the message template. ");
     const link = document.createElement("a")

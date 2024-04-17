@@ -1,20 +1,20 @@
 import { toMarkdownV2 } from "./markdown";
 import { User } from "grammy/types";
-import { MessageData, MessageUpdate } from '../type';
+import { MessageData, MessageUpdate, TGInboxSettings } from '../type';
 import { moment } from "obsidian";
 import * as Mustache from 'mustache';
 
-export function generateContentFromTemplate(msg: MessageUpdate, template: string): string {
-    const data = buildMsgData(msg);
-    return Mustache.render(template, data);
+export function generateContentFromTemplate(msg: MessageUpdate, setting: TGInboxSettings): string {
+    const data = buildMsgData(msg, setting);
+    return Mustache.render(setting.message_template, data);
 }
 
-export function buildMsgData(msg: MessageUpdate) {
+export function buildMsgData(msg: MessageUpdate, setting: TGInboxSettings): MessageData {
     const forwardOrigin = getForwardOrigin(msg);
 
     const data: MessageData = {
         message_id: msg.message_id,
-        text: toMarkdownV2(msg),
+        text: toMarkdownV2(msg, setting),
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         time: moment(msg.date * 1000).format("HH:mm"),
         name: getSenderName(msg),

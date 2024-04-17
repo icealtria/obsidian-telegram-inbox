@@ -6,6 +6,7 @@ export interface TGInboxSettings {
   download_dir: string;
   download_media: boolean;
   message_template: string;
+  markdown_escaper: boolean;
 }
 
 import { Message, Update } from "grammy/types";
