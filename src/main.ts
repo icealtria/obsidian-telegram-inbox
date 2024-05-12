@@ -1,6 +1,6 @@
 import { Notice, Plugin } from "obsidian";
 import { TelegramBot } from "./bot";
-import { TGInboxSettings } from "./type";
+import type { TGInboxSettings } from "./type";
 import { TGInboxSettingTab } from "./settings";
 
 const DEFAULT_SETTINGS: TGInboxSettings = {
