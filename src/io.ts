@@ -1,5 +1,5 @@
 import { getTodayDiary } from "./utils/diary";
-import { Vault } from "obsidian";
+import type { Vault } from "obsidian";
 
 import { Mutex } from "async-mutex";
 

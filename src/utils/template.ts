@@ -1,6 +1,6 @@
 import { toMarkdownV2 } from "./markdown";
-import { User } from "grammy/types";
-import { MessageData, MessageUpdate, TGInboxSettings } from '../type';
+import type { User } from "grammy/types";
+import type { MessageData, MessageUpdate, TGInboxSettings } from '../type';
 import { moment } from "obsidian";
 import * as Mustache from 'mustache';
 
@@ -60,9 +60,9 @@ function getForwardOrigin(msg: MessageUpdate) {
 }
 
 function getUserName(user: User) {
-    return `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
+    return `${user.first_name}${user.last_name ? ` ${user.last_name}` : ''}`;
 }
 
 function getSenderName(msg: MessageUpdate) {
-    return `${msg.from.first_name}${msg.from?.last_name ? ' ' + msg.from.last_name : ''}`;
+    return `${msg.from.first_name}${msg.from?.last_name ? ` ${msg.from.last_name}` : ''}`;
 }

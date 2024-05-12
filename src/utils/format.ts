@@ -4,9 +4,8 @@ export function toBullet(content: string) {
         .map((line, index) => {
             if (index === 0) {
                 return `- ${line}`;
-            } else {
-                return `  ${line}`;
             }
+            return `  ${line}`;
         })
         .join("\n");
 }

@@ -1,9 +1,9 @@
-import { Bot, Composer, Context } from "grammy";
-import { Vault, moment } from "obsidian";
+import { Bot, Composer, type Context } from "grammy";
+import { type Vault, moment } from "obsidian";
 import { insertMessage } from "./io";
-import { TGInboxSettings } from "./type";
+import type { TGInboxSettings } from "./type";
 import { downloadAndSaveFile } from "./utils/download";
-import { File, Message } from "grammy/types";
+import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
 import { toBullet } from "./utils/format";
 import { getExt, getFileUrl } from "./utils/file";

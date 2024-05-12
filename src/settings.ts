@@ -1,5 +1,5 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import TGInbox from "./main";
+import { type App, PluginSettingTab, Setting } from "obsidian";
+import type TGInbox from "./main";
 import * as Mustache from 'mustache';
 
 export class TGInboxSettingTab extends PluginSettingTab {

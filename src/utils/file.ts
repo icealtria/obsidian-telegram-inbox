@@ -1,4 +1,4 @@
-import { File } from "grammy/types";
+import type { File } from "grammy/types";
 
 export function getExt(path: string) {
     return path.split(".").pop();
