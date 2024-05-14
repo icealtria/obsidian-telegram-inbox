@@ -11,6 +11,8 @@ export interface TGInboxSettings {
   download_media: boolean;
   message_template: string;
   markdown_escaper: boolean;
+  is_custom_file: boolean;
+  custom_file_path: string;
 }
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -171,6 +173,32 @@ export class TGInboxSettingTab extends PluginSettingTab {
       });
 
     const templateValidStatus = containerEl.createDiv();
+
+    new Setting(containerEl)
+      .setName("Save to custom path")
+      .setDesc("Save messages to a custom path.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.is_custom_file)
+          .onChange(async (value) => {
+            this.plugin.settings.is_custom_file = value;
+            await this.plugin.saveSettings();
+            this.display();
+          });
+      })
+
+    if (this.plugin.settings.is_custom_file) {
+      new Setting(containerEl)
+        .setName("Custom path")
+        .setDesc("Specify the path for saving messages.")
+        .addText((text) => {
+          text.setPlaceholder("Default: Telegram-Inbox.md")
+            .setValue(this.plugin.settings.custom_file_path)
+            .onChange((value) => {
+              this.plugin.settings.custom_file_path = value;
+              this.plugin.saveSettings();
+            })
+        })
+    }
   }
 
   hide() {

@@ -13,6 +13,7 @@ export class TelegramBot {
   bot: Bot;
   vault: Vault;
   allowedUsers: string[];
+  settings: TGInboxSettings;
 
   constructor(vault: Vault, settings: TGInboxSettings) {
 
@@ -21,6 +22,7 @@ export class TelegramBot {
     this.bot = new Bot(settings.token);
     this.bot.use(restrictToAllowedUsers);
     this.vault = vault;
+    this.settings = settings;
 
     this.setupCommands();
 
@@ -69,8 +71,12 @@ export class TelegramBot {
     this.bot.on("message:text", async (ctx) => {
       const content = generateContentFromTemplate(ctx.msg, settings)
       const finalContent = settings.bullet ? toBullet(content) : content;
-      this.insertMessageToVault(finalContent);
-      ctx.react("❤");
+      await this.insertMessageToVault(finalContent)
+        .then(_ => ctx.react("❤"))
+        .catch((err) => {
+          console.error(err);
+          ctx.reply("Failed to insert message to vault");
+        });
     });
 
     this.bot.on("message:media", async (ctx) => {
@@ -94,8 +100,12 @@ export class TelegramBot {
         content = toBullet(content);
       }
 
-      this.insertMessageToVault(content);
-      ctx.react("❤");
+      await this.insertMessageToVault(content)
+        .then(_ => ctx.react("❤"))
+        .catch((err) => {
+          console.error(err);
+          ctx.reply("Failed to insert message to vault.");
+        });
     });
   }
 
@@ -106,7 +116,7 @@ export class TelegramBot {
     return `${dateStr}-${message_id}.${extension}`;
   }
 
-  private insertMessageToVault(content: string) {
-    insertMessage(this.vault, content);
+  private async insertMessageToVault(content: string) {
+    await insertMessage(this.vault, content, this.settings);
   }
 }

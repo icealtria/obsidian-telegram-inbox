@@ -12,6 +12,8 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   download_media: false,
   markdown_escaper: false,
   message_template: "{{{text}}}",
+  is_custom_file: false,
+  custom_file_path: "Telegram-Inbox.md",
 };
 
 export default class TGInbox extends Plugin {
