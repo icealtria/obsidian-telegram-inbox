@@ -1,8 +1,23 @@
 import { toMarkdownV2 } from "./markdown";
 import type { User } from "grammy/types";
-import type { MessageData, MessageUpdate, TGInboxSettings } from '../type';
+import type { MessageUpdate } from '../type';
 import { moment } from "obsidian";
 import * as Mustache from 'mustache';
+import type { TGInboxSettings } from "src/settings";
+
+export interface MessageData {
+    message_id: number;
+    origin_name?: string;
+    origin_username?: string;
+    text: string;
+    date: string;
+    time: string;
+    name: string;
+    username?: string;
+    user_id: number;
+    origin_link?: string;
+  }
+  
 
 export function generateContentFromTemplate(msg: MessageUpdate, setting: TGInboxSettings): string {
     const data = buildMsgData(msg, setting);

@@ -1,7 +1,8 @@
-import { buildMsgData } from "../src/utils/template";
+import { type MessageData, buildMsgData } from "../src/utils/template";
 import { describe, expect, test } from "@jest/globals"
 import { msg, msgHidden, msgFowardUser, msgCh } from "./msgs";
-import { MessageData, TGInboxSettings } from "src/type";
+import type { TGInboxSettings } from "src/settings";
+
 
 const settings: TGInboxSettings = {
     token: "",

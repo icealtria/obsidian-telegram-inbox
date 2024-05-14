@@ -1,6 +1,8 @@
 import { escapers, serialiseWith } from "@telegraf/entity";
 import type { Serialiser, Node } from "@telegraf/entity/types/types";
-import type { MessageUpdate, TGInboxSettings } from "src/type";
+import type { TGInboxSettings } from "src/settings";
+import type { MessageUpdate } from "src/type";
+
 
 const markdownSerialiser: Serialiser = (match: string, node?: Node) => {
   switch (node?.type) {
