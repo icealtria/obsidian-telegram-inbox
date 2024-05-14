@@ -12,7 +12,9 @@ const settings: TGInboxSettings = {
     download_dir: "",
     download_media: false,
     message_template: "",
-    markdown_escaper: false
+    markdown_escaper: false,
+    is_custom_file: false,
+    custom_file_path: ""
 }
 
 
