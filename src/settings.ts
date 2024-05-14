@@ -101,21 +101,24 @@ export class TGInboxSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.download_media = value;
             await this.plugin.saveSettings();
+            this.display();
           })
       );
 
-    new Setting(containerEl)
-      .setName("Download directory")
-      .setDesc("Specify the directory for downloading media files")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter download directory")
-          .setValue(this.plugin.settings.download_dir)
-          .onChange(async (value) => {
-            this.plugin.settings.download_dir = value;
-            await this.plugin.saveSettings();
-          })
-      );
+    if (this.plugin.settings.download_media) {
+      new Setting(containerEl)
+        .setName("Download directory")
+        .setDesc("Specify the directory for downloading media files")
+        .addText((text) =>
+          text
+            .setPlaceholder("Enter download directory")
+            .setValue(this.plugin.settings.download_dir)
+            .onChange(async (value) => {
+              this.plugin.settings.download_dir = value;
+              await this.plugin.saveSettings();
+            })
+        );
+    }
 
     new Setting(containerEl).setName("Advanced").setHeading();
 
