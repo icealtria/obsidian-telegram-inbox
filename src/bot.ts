@@ -91,15 +91,15 @@ export class TelegramBot {
 
         const downloadResult = await downloadAndSaveFile(url, filename_ext, settings.download_dir);
 
+        if (settings.bullet) {
+          content = toBullet(content);
+        }
+
         if (downloadResult) {
-          content = `![[${filename_ext}]]${content}`;
+          content = `![[${filename_ext}]]\n${content}`;
         } else {
           ctx.reply("Failed to download media");
         }
-      }
-
-      if (settings.bullet) {
-        content = toBullet(content);
       }
 
       await this.insertMessageToVault(content, { msg: ctx.message })
