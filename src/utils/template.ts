@@ -49,13 +49,21 @@ export function generatePath(msg: MessageUpdate, setting: TGInboxSettings) {
 }
 
 function buildPathData(msg: MessageUpdate) {
-    const data = {
+    const data: {
+        date: string;
+        first_name: string;
+        name: string;
+        time: string;
+        user_id: number;
+        origin_name: string;
+    } = {
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         first_name: msg.from.first_name,
         name: getSenderName(msg),
         time: moment(msg.date * 1000).format("HH-mm"),
         user_id: msg.from?.id || 0,
-    }
+        origin_name: getForwardOrigin(msg)?.origin_name || getSenderName(msg),
+    };
     return data;
 }
 
