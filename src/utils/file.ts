@@ -2,6 +2,8 @@ import type { File } from "grammy/types";
 import type { TGInboxSettings } from "src/settings";
 import { getTodayDiary } from "./diary";
 import { type TFile, normalizePath, type Vault, moment } from "obsidian";
+import { generatePath } from "./template";
+import type { MessageUpdate } from "src/type";
 
 export function getExt(path: string) {
 	return path.split(".").pop();
@@ -16,10 +18,11 @@ export function getFileUrl(file: File, token: string) {
 export async function getTargetFile(
 	vault: Vault,
 	settings: TGInboxSettings,
+	msg?: MessageUpdate
 ): Promise<TFile> {
-	if (settings.is_custom_file) {
+	if (settings.is_custom_file && msg) {
 		let normalizedPath = settings.custom_file_path
-			? normalizePath(settings.custom_file_path)
+			? normalizePath(generatePath(msg, settings))
 			: normalizePath('Telegram-Inbox.md');
 
 		if (!normalizedPath.endsWith('.md')) {

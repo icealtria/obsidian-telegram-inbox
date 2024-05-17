@@ -16,8 +16,8 @@ export interface MessageData {
     username?: string;
     user_id: number;
     origin_link?: string;
-  }
-  
+}
+
 
 export function generateContentFromTemplate(msg: MessageUpdate, setting: TGInboxSettings): string {
     const data = buildMsgData(msg, setting);
@@ -41,6 +41,24 @@ export function buildMsgData(msg: MessageUpdate, setting: TGInboxSettings): Mess
     return data;
 }
 
+export function generatePath(msg: MessageUpdate, setting: TGInboxSettings) {
+    const data = buildPathData(msg);
+    const path = Mustache.render(setting.custom_file_path, data);
+    const regex = /[\[\]#\^\|]/g;
+    return path.replace(regex, "_");
+}
+
+function buildPathData(msg: MessageUpdate) {
+    const data = {
+        date: moment(msg.date * 1000).format("YYYY-MM-DD"),
+        first_name: msg.from.first_name,
+        name: getSenderName(msg),
+        time: moment(msg.date * 1000).format("HH-mm"),
+        user_id: msg.from?.id || 0,
+    }
+    return data;
+}
+
 function getForwardOrigin(msg: MessageUpdate) {
     if (!msg.forward_origin) {
         return null;
@@ -59,18 +77,30 @@ function getForwardOrigin(msg: MessageUpdate) {
                 origin_name: msg.forward_origin.sender_user_name,
                 origin_username: "",
             };
-        case "channel":
-            {
-                const chat = msg.forward_origin.chat;
+        case "channel": {
+            const chat = msg.forward_origin.chat;
+            return {
+                origin_name: chat.title,
+                origin_username: chat.username || "",
+                origin_link: `https://t.me/${chat.username ? chat.username : chat.id}/${msg.forward_origin.message_id
+                    }`,
+            };
+        }
+        case "chat": {
+            const chat = msg.forward_origin.sender_chat;
+            if (chat.type === "private") {
+                return {
+                    origin_name: chat.first_name + chat.last_name ? ` ${chat.last_name}` : '',
+                    origin_username: "",
+                };
+            } if (chat.type === "group") {
                 return {
                     origin_name: chat.title,
-                    origin_username: chat.username || "",
-                    origin_link: `https://t.me/${chat.username ? chat.username : chat.id}/${msg.forward_origin.message_id}`
-                }
+                    origin_username: "",
+                };
             }
-        default:
-            console.error("Unknown forward origin type:", type);
-            return null;
+            break;
+        }
     }
 }
 

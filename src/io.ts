@@ -1,5 +1,5 @@
 import { getTodayDiary } from "./utils/diary";
-import type { Vault } from "obsidian";
+import type { TFile, Vault } from "obsidian";
 
 import { Mutex } from "async-mutex";
 import type { TGInboxSettings } from "./settings";
@@ -24,18 +24,17 @@ export async function insertAfterMarker(
   vault.modify(todayDiary, fileContent);
 }
 
-export async function insertMessage(vault: Vault, message: string, settings: TGInboxSettings) {
+export async function insertMessage(vault: Vault, message: string, tFile: TFile) {
   const release = await mutex.acquire();
   try {
-    const todayDiary = await getTargetFile(vault, settings);
-    const fileContent = await vault.read(todayDiary);
+    const fileContent = await vault.read(tFile);
     if (fileContent.trim() === "") {
-      vault.modify(todayDiary, message);
+      vault.modify(tFile, message);
     } else {
       const updatedContent = fileContent.endsWith("\n")
         ? `${fileContent}${message}`
         : `${fileContent}\n${message}`;
-      vault.modify(todayDiary, updatedContent);
+      vault.modify(tFile, updatedContent);
     }
   } catch (error) {
     throw new Error(`Error inserting message. ${error}`);
