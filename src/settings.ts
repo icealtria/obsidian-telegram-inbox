@@ -137,6 +137,33 @@ export class TGInboxSettingTab extends PluginSettingTab {
       });
 
 
+    new Setting(containerEl)
+      .setName("Save to custom path")
+      .setDesc("Toggle to save messages to a custom path.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.is_custom_file)
+          .onChange(async (value) => {
+            this.plugin.settings.is_custom_file = value;
+            await this.plugin.saveSettings();
+            this.display();
+          });
+      })
+
+    if (this.plugin.settings.is_custom_file) {
+      new Setting(containerEl)
+        .setName("Custom path")
+        .setDesc("Specify the path for saving messages.")
+        .addText((text) => {
+          text.setPlaceholder("Default: Telegram-Inbox.md")
+            .setValue(this.plugin.settings.custom_file_path)
+            .onChange((value) => {
+              this.plugin.settings.custom_file_path = value;
+              this.plugin.saveSettings();
+            })
+        })
+    }
+
+
     const message_template_desc = document.createDocumentFragment();
     message_template_desc.append("Customize the message template. ");
     const link = document.createElement("a")
@@ -173,32 +200,6 @@ export class TGInboxSettingTab extends PluginSettingTab {
       });
 
     const templateValidStatus = containerEl.createDiv();
-
-    new Setting(containerEl)
-      .setName("Save to custom path")
-      .setDesc("Toggle to save messages to a custom path.")
-      .addToggle((toggle) => {
-        toggle.setValue(this.plugin.settings.is_custom_file)
-          .onChange(async (value) => {
-            this.plugin.settings.is_custom_file = value;
-            await this.plugin.saveSettings();
-            this.display();
-          });
-      })
-
-    if (this.plugin.settings.is_custom_file) {
-      new Setting(containerEl)
-        .setName("Custom path")
-        .setDesc("Specify the path for saving messages.")
-        .addText((text) => {
-          text.setPlaceholder("Default: Telegram-Inbox.md")
-            .setValue(this.plugin.settings.custom_file_path)
-            .onChange((value) => {
-              this.plugin.settings.custom_file_path = value;
-              this.plugin.saveSettings();
-            })
-        })
-    }
   }
 
   hide() {
