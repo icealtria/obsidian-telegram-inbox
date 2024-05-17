@@ -68,7 +68,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Allowed users")
       .setDesc(
-        "List of user messages would be received.\nSeparate with a comma."
+        "List of usernames or IDs of users whose messages will be received. Separate multiple entries with commas."
       )
       .addText((text) =>
         text
@@ -96,7 +96,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Download media")
-      .setDesc("Whether to download media along with messages")
+      .setDesc("Toggle to download media files along with messages.")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.download_media)
@@ -162,7 +162,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
           () => {
             try {
               Mustache.parse(this.plugin.settings.message_template);
-              templateValidStatus.setText("✅ template is valid");
+              templateValidStatus.setText("✅ Template is valid");
             }
             catch (err) {
               console.error("Error parsing message template:", err);
@@ -176,7 +176,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Save to custom path")
-      .setDesc("Save messages to a custom path.")
+      .setDesc("Toggle to save messages to a custom path.")
       .addToggle((toggle) => {
         toggle.setValue(this.plugin.settings.is_custom_file)
           .onChange(async (value) => {
