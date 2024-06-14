@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   message_template: "{{{text}}}",
   is_custom_file: false,
   custom_file_path: "Telegram-Inbox.md",
+  disable_auto_reception: false,
 };
 
 export default class TGInbox extends Plugin {
@@ -26,8 +27,38 @@ export default class TGInbox extends Plugin {
 
   async onload() {
     this.addSettingTab(new TGInboxSettingTab(this.app, this));
+
+    this.addCommands();
+
     await this.loadSettings();
+
+    if (this.settings.disable_auto_reception) {
+      this.addRibbonIcon('send', 'Telegram Inbox: Get Updates', () => {
+        this.bot?.getUpdates();
+      });
+    }
+
     this.launchBot();
+  }
+
+  addCommands() {
+    this.addCommand({
+      id: "tg-inbox-getupdates",
+      name: "Get Updates",
+      callback: () => this.bot?.getUpdates(),
+    });
+
+    this.addCommand({
+      id: "tg-inbox-start",
+      name: "Start Telegram Bot",
+      callback: () => this.startBot(),
+    });
+
+    this.addCommand({
+      id: "tg-inbox-stop",
+      name: "Stop Telegram Bot",
+      callback: () => this.stopBot(),
+    });
   }
 
   async getBotInfo() {
@@ -58,12 +89,20 @@ export default class TGInbox extends Plugin {
       }
       await this.stopBot();
       this.bot = new TelegramBot(this.app.vault, this.settings);
-      new Notice("Telegram bot starting");
-      this.bot.start();
+      if (!this.settings.disable_auto_reception) {
+        this.startBot();
+      }
     } catch (error) {
       console.error("Error launching bot:", error);
       new Notice("Error launching bot");
       this.bot = null;
+    }
+  }
+
+  async startBot() {
+    new Notice("Telegram bot starting");
+    if (this.bot) {
+      this.bot.start();
     }
   }
 

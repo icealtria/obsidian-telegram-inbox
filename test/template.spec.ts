@@ -14,7 +14,8 @@ const settings: TGInboxSettings = {
     message_template: "",
     markdown_escaper: false,
     is_custom_file: false,
-    custom_file_path: ""
+    custom_file_path: "",
+    disable_auto_reception: true,
 }
 
 

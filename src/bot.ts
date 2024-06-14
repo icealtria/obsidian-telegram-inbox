@@ -8,21 +8,27 @@ import { generateContentFromTemplate } from "./utils/template";
 import { toBullet } from "./utils/format";
 import { getExt, getFileUrl, getTargetFile } from "./utils/file";
 import type { MessageUpdate } from "./type";
-import { msg } from "test/msgs";
-
 
 export class TelegramBot {
   bot: Bot;
   vault: Vault;
   allowedUsers: string[];
   settings: TGInboxSettings;
+  update_id: number;
 
   constructor(vault: Vault, settings: TGInboxSettings) {
 
     const restrictToAllowedUsers = this.createRestrictToAllowedUsersMiddleware(settings);
+    const recordUpdateId = this.createRecordUpdateIdMiddleware();
 
     this.bot = new Bot(settings.token);
+
+    if (settings.disable_auto_reception) {
+      this.bot.init();
+    }
+
     this.bot.use(restrictToAllowedUsers);
+    this.bot.use(recordUpdateId);
     this.vault = vault;
     this.settings = settings;
 
@@ -36,7 +42,16 @@ export class TelegramBot {
   }
 
   start() {
-    this.bot.start({});
+    this.bot.start();
+  }
+
+  async getUpdates() {
+    const offset = this.update_id ? this.update_id + 1 : 1;
+    const updates = await this.bot.api.getUpdates({ offset });
+    updates.map(async (update) => await this.bot.handleUpdate(update));
+    if (updates.length > 0) {
+      this.bot.api.getUpdates({ offset: this.update_id + 1 , limit: 1 });
+    }
   }
 
   private createRestrictToAllowedUsersMiddleware(settings: TGInboxSettings): Composer<Context> {
@@ -52,6 +67,16 @@ export class TelegramBot {
       } else {
         console.log("Unauthorized user:", username || userId);
       }
+    });
+  }
+
+  createRecordUpdateIdMiddleware(): Composer<Context> {
+    return new Composer().use(async (ctx: Context, next) => {
+      const updateId = ctx.update?.update_id;
+      if (updateId) {
+        this.update_id = updateId;
+      }
+      await next();
     });
   }
 

@@ -13,6 +13,7 @@ export interface TGInboxSettings {
   markdown_escaper: boolean;
   is_custom_file: boolean;
   custom_file_path: string;
+  disable_auto_reception: boolean;
 }
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -124,6 +125,16 @@ export class TGInboxSettingTab extends PluginSettingTab {
 
     new Setting(containerEl).setName("Advanced").setHeading();
 
+    new Setting(containerEl)
+      .setName("Disable automatic reception on Startup")
+      .setDesc("If it is disabled, you will need to manually run commands to start bot or get updates.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.disable_auto_reception)
+          .onChange(async (value) => {
+            this.plugin.settings.disable_auto_reception = value;
+            await this.plugin.saveSettings();
+          });
+      })
 
     new Setting(containerEl)
       .setName("Markdown escaper")
