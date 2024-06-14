@@ -126,8 +126,8 @@ export class TGInboxSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Advanced").setHeading();
 
     new Setting(containerEl)
-      .setName("Disable automatic reception on Startup")
-      .setDesc("If it is disabled, you will need to manually run commands to start bot or get updates.")
+      .setName("Disable automatically receiving on Startup")
+      .setDesc("If it is disabled, you will need to manually run a command to start bot or get updates.")
       .addToggle((toggle) => {
         toggle.setValue(this.plugin.settings.disable_auto_reception)
           .onChange(async (value) => {
@@ -160,10 +160,18 @@ export class TGInboxSettingTab extends PluginSettingTab {
           });
       })
 
+    const custom_path_desc = document.createDocumentFragment();
+    custom_path_desc.append("Specify the path for saving messages. ");
+    const custom_path_wiki = document.createElement("a")
+    custom_path_wiki.href = "https://github.com/icealtria/obsidian-telegram-inbox/wiki/Custom-path"
+    custom_path_wiki.text = "Learn more";
+    custom_path_desc.append(custom_path_wiki)
+
+
     if (this.plugin.settings.is_custom_file) {
       new Setting(containerEl)
         .setName("Custom path")
-        .setDesc("Specify the path for saving messages.")
+        .setDesc(custom_path_desc)
         .addText((text) => {
           text.setPlaceholder("Default: Telegram-Inbox.md")
             .setValue(this.plugin.settings.custom_file_path)
@@ -174,13 +182,12 @@ export class TGInboxSettingTab extends PluginSettingTab {
         })
     }
 
-
     const message_template_desc = document.createDocumentFragment();
     message_template_desc.append("Customize the message template. ");
-    const link = document.createElement("a")
-    link.href = "https://github.com/icealtria/obsidian-telegram-inbox/wiki/Message-template"
-    link.text = "Learn more";
-    message_template_desc.append(link)
+    const message_template_wiki = document.createElement("a")
+    message_template_wiki.href = "https://github.com/icealtria/obsidian-telegram-inbox/wiki/Message-template"
+    message_template_wiki.text = "Learn more";
+    message_template_desc.append(message_template_wiki)
 
 
     new Setting(containerEl)
