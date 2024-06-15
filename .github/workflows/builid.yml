@@ -32,4 +32,6 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+            Commit ${{ github.sha }}
         document: main.js
