@@ -18,6 +18,15 @@ export interface MessageData {
     origin_link?: string;
 }
 
+interface PathData {
+    date: string;
+    first_name: string;
+    name: string;
+    time: string;
+    user_id: number;
+    origin_name: string;
+}
+
 
 export function generateContentFromTemplate(msg: MessageUpdate, setting: TGInboxSettings): string {
     const data = buildMsgData(msg, setting);
@@ -42,21 +51,23 @@ export function buildMsgData(msg: MessageUpdate, setting: TGInboxSettings): Mess
 }
 
 export function generatePath(msg: MessageUpdate, setting: TGInboxSettings) {
-    const data = buildPathData(msg);
+    const data = rereplaceSpecialChar(buildPathData(msg));
     const path = Mustache.render(setting.custom_file_path, data);
-    const regex = /[\[\]#\^\|]/g;
-    return path.replace(regex, "_");
+    return path;
+}
+
+function rereplaceSpecialChar(data: PathData) {
+    const regex = /[/\\[\]#^|:?*"<>]/g;
+
+    data.first_name = data.first_name.replace(regex, "_");
+    data.name = data.name.replace(regex, "_");
+    data.origin_name = data.origin_name.replace(regex, "_");
+    
+    return data;
 }
 
 function buildPathData(msg: MessageUpdate) {
-    const data: {
-        date: string;
-        first_name: string;
-        name: string;
-        time: string;
-        user_id: number;
-        origin_name: string;
-    } = {
+    const data: PathData = {
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         first_name: msg.from.first_name,
         name: getSenderName(msg),
