@@ -3,7 +3,7 @@ import type { TFile, Vault } from "obsidian";
 
 import { Mutex } from "async-mutex";
 import type { TGInboxSettings } from "./settings";
-import { getTargetFile } from "./utils/file";
+import { getSavedPath } from "./utils/file";
 
 const mutex = new Mutex();
 export async function insertAfterMarker(

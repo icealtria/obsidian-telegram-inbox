@@ -6,7 +6,7 @@ import { downloadAndSaveFile } from "./utils/download";
 import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
 import { toBullet } from "./utils/format";
-import { getExt, getFileUrl, getTargetFile } from "./utils/file";
+import { getExt, getFileUrl, getSavedPath } from "./utils/file";
 import type { MessageUpdate } from "./type";
 
 export class TelegramBot {
@@ -144,10 +144,10 @@ export class TelegramBot {
   }
 
   private async insertMessageToVault(content: string, options?: { msg?: MessageUpdate }): Promise<void> {
-    const targetFile = options?.msg
-      ? await getTargetFile(this.vault, this.settings, options.msg)
-      : await getTargetFile(this.vault, this.settings);
+    const savedPath = options?.msg
+      ? await getSavedPath(this.vault, this.settings, options.msg)
+      : await getSavedPath(this.vault, this.settings);
 
-    await insertMessage(this.vault, content, targetFile);
+    await insertMessage(this.vault, content, savedPath);
   }
 }

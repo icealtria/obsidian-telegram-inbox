@@ -15,7 +15,7 @@ export function getFileUrl(file: File, token: string) {
 }
 
 
-export async function getTargetFile(
+export async function getSavedPath(
 	vault: Vault,
 	settings: TGInboxSettings,
 	msg?: MessageUpdate
