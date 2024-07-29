@@ -59,9 +59,9 @@ export function generatePath(msg: MessageUpdate, setting: TGInboxSettings) {
 function rereplaceSpecialChar(data: PathData) {
     const regex = /[/\\[\]#^|:?*"<>]/g;
 
-    data.first_name = data.first_name.replace(regex, "_");
-    data.name = data.name.replace(regex, "_");
-    data.origin_name = data.origin_name.replace(regex, "_");
+    data.first_name = data.first_name.replace(regex, "~");
+    data.name = data.name.replace(regex, "~");
+    data.origin_name = data.origin_name.replace(regex, "~");
     
     return data;
 }
