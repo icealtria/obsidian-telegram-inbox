@@ -6,7 +6,6 @@ export interface TGInboxSettings {
   token: string;
   marker: string;
   allow_users: string[];
-  bullet: boolean;
   download_dir: string;
   download_media: boolean;
   message_template: string;
@@ -84,17 +83,6 @@ export class TGInboxSettingTab extends PluginSettingTab {
 
     new Setting(containerEl).setName("Message formatting").setHeading();
 
-    new Setting(containerEl)
-      .setName("Bullet points")
-      .setDesc(
-        "Enable bullet points for inserted messages. But it's not good to show code and quotes."
-      )
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.bullet).onChange(async (value) => {
-          this.plugin.settings.bullet = value;
-          await this.plugin.saveSettings();
-        })
-      );
 
     new Setting(containerEl)
       .setName("Download media")

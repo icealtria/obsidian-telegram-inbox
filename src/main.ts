@@ -7,7 +7,6 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   token: "",
   marker: "#inbox",
   allow_users: [],
-  bullet: true,
   download_dir: "/assets",
   download_media: false,
   markdown_escaper: false,

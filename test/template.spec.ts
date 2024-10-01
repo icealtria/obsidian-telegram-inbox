@@ -8,7 +8,6 @@ const settings: TGInboxSettings = {
     token: "",
     marker: "",
     allow_users: [],
-    bullet: false,
     download_dir: "",
     download_media: false,
     message_template: "",

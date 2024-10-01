@@ -5,7 +5,6 @@ import type { TGInboxSettings } from "./settings";
 import { downloadAndSaveFile } from "./utils/download";
 import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
-import { toBullet } from "./utils/format";
 import { getExt, getFileUrl, getSavedPath } from "./utils/file";
 import type { MessageUpdate } from "./type";
 
@@ -98,8 +97,7 @@ export class TelegramBot {
     this.bot.on("message:text", async (ctx) => {
       console.debug(`Received text message [${ctx.message.message_id}] from user ${ctx.from?.username || ctx.from?.id}`);
       const content = generateContentFromTemplate(ctx.msg, settings)
-      const finalContent = settings.bullet ? toBullet(content) : content;
-      await this.insertMessageToVault(finalContent, { msg: ctx.message })
+      await this.insertMessageToVault(content, { msg: ctx.message })
         .then(_ => ctx.react("❤"))
         .catch((err) => {
           console.error(`Failed to insert text message to vault. Error: ${err.message}`, err);
@@ -118,10 +116,6 @@ export class TelegramBot {
 
         console.debug(`Attempting to download media: ${filename_ext} from ${url}`);
         const downloadResult = await downloadAndSaveFile(url, filename_ext, settings.download_dir);
-
-        if (settings.bullet) {
-          content = toBullet(content);
-        }
 
         if (downloadResult) {
           content = `![[${filename_ext}]]\n${content}`;
