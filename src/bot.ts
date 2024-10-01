@@ -7,6 +7,7 @@ import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
 import { getExt, getFileUrl, getSavedPath } from "./utils/file";
 import type { MessageUpdate } from "./type";
+import { Mutex } from "async-mutex";
 
 export class TelegramBot {
   bot: Bot;
@@ -14,6 +15,7 @@ export class TelegramBot {
   allowedUsers: string[];
   settings: TGInboxSettings;
   update_id: number;
+  mutex = new Mutex();
 
   constructor(vault: Vault, settings: TGInboxSettings) {
 
@@ -142,6 +144,8 @@ export class TelegramBot {
   }
 
   private async insertMessageToVault(content: string, options?: { msg?: MessageUpdate }): Promise<void> {
+    const release = await this.mutex.acquire();
+
     const savedPath = options?.msg
       ? await getSavedPath(this.vault, this.settings, options.msg)
       : await getSavedPath(this.vault, this.settings);
@@ -157,6 +161,8 @@ export class TelegramBot {
     } catch (error) {
       console.error(`Error inserting message to vault: ${error}`);
       throw error;
+    } finally {
+      release();
     }
   }
 }

@@ -1,11 +1,6 @@
 import { getTodayDiary } from "./utils/diary";
 import type { TFile, Vault } from "obsidian";
 
-import { Mutex } from "async-mutex";
-import type { TGInboxSettings } from "./settings";
-import { getSavedPath } from "./utils/file";
-
-const mutex = new Mutex();
 export async function insertAfterMarker(
   vault: Vault,
   message: string,
@@ -25,7 +20,6 @@ export async function insertAfterMarker(
 }
 
 export async function insertMessage(vault: Vault, message: string, tFile: TFile) {
-  const release = await mutex.acquire();
   try {
     const fileContent = await vault.read(tFile);
     if (fileContent.trim() === "") {
@@ -38,13 +32,10 @@ export async function insertMessage(vault: Vault, message: string, tFile: TFile)
     }
   } catch (error) {
     throw new Error(`Error inserting message. ${error}`);
-  } finally {
-    release();
   }
 }
 
 export async function insertMessageAtTop(vault: Vault, message: string, tFile: TFile) {
-  const release = await mutex.acquire();
   try {
     const fileContent = await vault.read(tFile);
     if (fileContent.trim() === "") {
@@ -55,7 +46,5 @@ export async function insertMessageAtTop(vault: Vault, message: string, tFile: T
     }
   } catch (error) {
     throw new Error(`Error inserting message. ${error}`);
-  } finally {
-    release();
   }
 }
