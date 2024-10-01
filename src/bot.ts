@@ -37,7 +37,7 @@ export class TelegramBot {
     this.setupMessageHandlers(settings);
 
     this.bot.catch((err) => {
-      console.error(err);
+      console.error("An error occurred in the Telegram bot:", err);
     });
   }
 
@@ -50,7 +50,7 @@ export class TelegramBot {
     const updates = await this.bot.api.getUpdates({ offset });
     updates.map(async (update) => await this.bot.handleUpdate(update));
     if (updates.length > 0) {
-      this.bot.api.getUpdates({ offset: this.update_id + 1 , limit: 1 });
+      this.bot.api.getUpdates({ offset: this.update_id + 1, limit: 1 });
     }
   }
 
@@ -65,7 +65,7 @@ export class TelegramBot {
       ) {
         await next();
       } else {
-        console.log("Unauthorized user:", username || userId);
+        console.log(`Unauthorized access attempt: User ${username || userId} tried to access the bot at ${new Date().toISOString()}`);
       }
     });
   }
@@ -96,17 +96,19 @@ export class TelegramBot {
 
   private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on("message:text", async (ctx) => {
+      console.debug(`Received text message [${ctx.message.message_id}] from user ${ctx.from?.username || ctx.from?.id}`);
       const content = generateContentFromTemplate(ctx.msg, settings)
       const finalContent = settings.bullet ? toBullet(content) : content;
       await this.insertMessageToVault(finalContent, { msg: ctx.message })
         .then(_ => ctx.react("❤"))
         .catch((err) => {
-          console.error(err);
-          ctx.reply("Failed to insert message to vault");
+          console.error(`Failed to insert text message to vault. Error: ${err.message}`, err);
+          ctx.reply(`Failed to insert text message to vault. Error: ${err.message}`, err);
         });
     });
 
     this.bot.on("message:media", async (ctx) => {
+      console.debug(`Received media message [${ctx.message.message_id}] from user ${ctx.from?.username || ctx.from?.id}`);
       let content = generateContentFromTemplate(ctx.message, settings);
 
       if (settings.download_media) {
@@ -114,6 +116,7 @@ export class TelegramBot {
         const filename_ext = this.generateFilename(ctx.message, file);
         const url = getFileUrl(file, this.bot.token);
 
+        console.debug(`Attempting to download media: ${filename_ext} from ${url}`);
         const downloadResult = await downloadAndSaveFile(url, filename_ext, settings.download_dir);
 
         if (settings.bullet) {
@@ -123,15 +126,16 @@ export class TelegramBot {
         if (downloadResult) {
           content = `![[${filename_ext}]]\n${content}`;
         } else {
-          ctx.reply("Failed to download media");
+          console.error(`Failed to download media. File: ${filename_ext}, URL: ${url}`);
+          ctx.reply(`Failed to download media. File: ${filename_ext}, URL: ${url}`);
         }
       }
 
       await this.insertMessageToVault(content, { msg: ctx.message })
         .then(_ => ctx.react("❤"))
         .catch((err) => {
-          console.error(err);
-          ctx.reply("Failed to insert message to vault.");
+          console.error(`Failed to insert media message to vault. Error: ${err.message}`, err);
+          ctx.reply(`Failed to insert media message to vault. Error: ${err.message}`, err);
         });
     });
   }
@@ -147,7 +151,14 @@ export class TelegramBot {
     const savedPath = options?.msg
       ? await getSavedPath(this.vault, this.settings, options.msg)
       : await getSavedPath(this.vault, this.settings);
+    console.debug(`Determined saved path: ${savedPath.path}`);
 
-    await insertMessage(this.vault, content, savedPath);
+    try {
+      await insertMessage(this.vault, content, savedPath);
+      console.debug(`Message inserted to vault: ${savedPath.path}`);
+    } catch (error) {
+      console.error(`Error inserting message to vault: ${error}`);
+      throw error;
+    }
   }
 }

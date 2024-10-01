@@ -16,8 +16,8 @@ export async function getTodayDiary() {
   const dailyNotes = getAllDailyNotes();
   let dailyNote = getDailyNote(date, dailyNotes);
   if (!dailyNote) {
+    console.debug('Daily note not found, creating new one');
     dailyNote = await createDiary();
   }
   return dailyNote;
 }
-

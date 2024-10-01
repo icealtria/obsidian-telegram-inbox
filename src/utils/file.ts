@@ -32,6 +32,7 @@ export async function getSavedPath(
 		const file = vault.getFileByPath(normalizedPath);
 
 		if (!file) {
+			console.debug(`File not found. Creating new file at: ${normalizedPath}`);
 			return await createTargetFile(vault, normalizedPath);
 		}
 		return file;
@@ -40,8 +41,10 @@ export async function getSavedPath(
 }
 
 async function createTargetFile(vault: Vault, filePath: string) {
+	console.debug(`Creating target file: ${filePath}`);
 	const dirPath = getDirPath(filePath);
 	if (dirPath) {
+		console.debug(`Directory path extracted: ${dirPath}`);
 		await ensureDirExists(vault, dirPath);
 	}
 	const file = await vault.create(filePath, '');
