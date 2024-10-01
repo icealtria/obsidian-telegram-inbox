@@ -112,6 +112,43 @@ export class TGInboxSettingTab extends PluginSettingTab {
         );
     }
 
+    const message_template_desc = document.createDocumentFragment();
+    message_template_desc.append("Customize the message template. ");
+    const message_template_wiki = document.createElement("a")
+    message_template_wiki.href = "https://github.com/icealtria/obsidian-telegram-inbox/wiki/Message-template"
+    message_template_wiki.text = "Learn more";
+    message_template_desc.append(message_template_wiki)
+
+
+    new Setting(containerEl)
+      .setName("Message template")
+      .setDesc(message_template_desc)
+      .addTextArea((textArea) => {
+        textArea.inputEl.rows = 3;
+        textArea.setValue(this.plugin.settings.message_template)
+          .onChange(async (value) => {
+            this.plugin.settings.message_template = value;
+            await this.plugin.saveSettings();
+          })
+      }
+      )
+      .addButton((button) => {
+        button.setButtonText("Validate").onClick(
+          () => {
+            try {
+              Mustache.parse(this.plugin.settings.message_template);
+              templateValidStatus.setText("✅ Template format is correct. This is to ensure that the program does not crash, doesn't mean the fields are correct.");
+            }
+            catch (err) {
+              console.error("Error parsing message template:", err);
+              templateValidStatus.setText(`❌ Error parsing template: ${err.message}`);
+            }
+          }
+        )
+      });
+
+    const templateValidStatus = containerEl.createDiv();
+
     new Setting(containerEl).setName("Advanced").setHeading();
 
     new Setting(containerEl)
@@ -182,42 +219,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
         })
     }
 
-    const message_template_desc = document.createDocumentFragment();
-    message_template_desc.append("Customize the message template. ");
-    const message_template_wiki = document.createElement("a")
-    message_template_wiki.href = "https://github.com/icealtria/obsidian-telegram-inbox/wiki/Message-template"
-    message_template_wiki.text = "Learn more";
-    message_template_desc.append(message_template_wiki)
 
-
-    new Setting(containerEl)
-      .setName("Message template")
-      .setDesc(message_template_desc)
-      .addTextArea((textArea) => {
-        textArea.inputEl.rows = 3;
-        textArea.setValue(this.plugin.settings.message_template)
-          .onChange(async (value) => {
-            this.plugin.settings.message_template = value;
-            await this.plugin.saveSettings();
-          })
-      }
-      )
-      .addButton((button) => {
-        button.setButtonText("Validate").onClick(
-          () => {
-            try {
-              Mustache.parse(this.plugin.settings.message_template);
-              templateValidStatus.setText("✅ Template format is correct.");
-            }
-            catch (err) {
-              console.error("Error parsing message template:", err);
-              templateValidStatus.setText(`❌ Error parsing template: ${err.message}`);
-            }
-          }
-        )
-      });
-
-    const templateValidStatus = containerEl.createDiv();
   }
 
   hide() {
