@@ -207,7 +207,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
           () => {
             try {
               Mustache.parse(this.plugin.settings.message_template);
-              templateValidStatus.setText("✅ Template is valid");
+              templateValidStatus.setText("✅ Template format is correct.");
             }
             catch (err) {
               console.error("Error parsing message template:", err);
