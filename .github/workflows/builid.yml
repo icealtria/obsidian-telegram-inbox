@@ -1,4 +1,4 @@
-name: release plugin
+name: build plugin and send to telegram
 
 on:
   push:
