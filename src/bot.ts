@@ -1,6 +1,6 @@
 import { Bot, Composer, type Context } from "grammy";
 import { type Vault, moment } from "obsidian";
-import { insertMessage } from "./io";
+import { insertMessage, insertMessageAtTop } from "./io";
 import type { TGInboxSettings } from "./settings";
 import { downloadAndSaveFile } from "./utils/download";
 import type { File, Message } from "grammy/types";
@@ -154,7 +154,11 @@ export class TelegramBot {
     console.debug(`Determined saved path: ${savedPath.path}`);
 
     try {
-      await insertMessage(this.vault, content, savedPath);
+      if (this.settings.reverse_order) {
+        await insertMessageAtTop(this.vault, content, savedPath);
+      } else {
+        await insertMessage(this.vault, content, savedPath);
+      }
       console.debug(`Message inserted to vault: ${savedPath.path}`);
     } catch (error) {
       console.error(`Error inserting message to vault: ${error}`);

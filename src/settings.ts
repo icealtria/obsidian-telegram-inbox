@@ -14,6 +14,7 @@ export interface TGInboxSettings {
   is_custom_file: boolean;
   custom_file_path: string;
   disable_auto_reception: boolean;
+  reverse_order: boolean;
 }
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -124,6 +125,17 @@ export class TGInboxSettingTab extends PluginSettingTab {
     }
 
     new Setting(containerEl).setName("Advanced").setHeading();
+
+    new Setting(containerEl)
+      .setName("Reverse order")
+      .setDesc("Reverse the order of messages. This is useful if you want to see the latest messages first.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.reverse_order)
+          .onChange(async (value) => {
+            this.plugin.settings.reverse_order = value;
+            await this.plugin.saveSettings();
+          });
+      })
 
     new Setting(containerEl)
       .setName("Disable automatically receiving on Startup")

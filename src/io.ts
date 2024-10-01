@@ -42,3 +42,20 @@ export async function insertMessage(vault: Vault, message: string, tFile: TFile)
     release();
   }
 }
+
+export async function insertMessageAtTop(vault: Vault, message: string, tFile: TFile) {
+  const release = await mutex.acquire();
+  try {
+    const fileContent = await vault.read(tFile);
+    if (fileContent.trim() === "") {
+      vault.modify(tFile, message);
+    } else {
+      const updatedContent = `${message}\n${fileContent}`;
+      vault.modify(tFile, updatedContent);
+    }
+  } catch (error) {
+    throw new Error(`Error inserting message. ${error}`);
+  } finally {
+    release();
+  }
+}
