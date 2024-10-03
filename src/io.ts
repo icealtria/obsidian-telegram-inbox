@@ -21,15 +21,14 @@ export async function insertAfterMarker(
 
 export async function insertMessage(vault: Vault, message: string, tFile: TFile) {
   try {
-    const fileContent = await vault.read(tFile);
-    if (fileContent.trim() === "") {
-      vault.modify(tFile, message);
-    } else {
-      const updatedContent = fileContent.endsWith("\n")
-        ? `${fileContent}${message}`
-        : `${fileContent}\n${message}`;
-      vault.modify(tFile, updatedContent);
-    }
+    await vault.process(tFile, (data) => {
+      const updatedContent = data.trim() === ""
+        ? message
+        : data.endsWith("\n")
+          ? `${data}${message}`
+          : `${data}\n${message}`;
+      return updatedContent;
+    });
   } catch (error) {
     throw new Error(`Error inserting message. ${error}`);
   }
@@ -37,13 +36,10 @@ export async function insertMessage(vault: Vault, message: string, tFile: TFile)
 
 export async function insertMessageAtTop(vault: Vault, message: string, tFile: TFile) {
   try {
-    const fileContent = await vault.read(tFile);
-    if (fileContent.trim() === "") {
-      vault.modify(tFile, message);
-    } else {
-      const updatedContent = `${message}\n${fileContent}`;
-      vault.modify(tFile, updatedContent);
-    }
+    await vault.process(tFile, (data) => {
+      const updatedContent = `${message}\n${data}`;
+      return updatedContent;
+    });
   } catch (error) {
     throw new Error(`Error inserting message. ${error}`);
   }
