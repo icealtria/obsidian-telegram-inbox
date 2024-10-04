@@ -5,7 +5,7 @@ import type { TGInboxSettings } from "./settings";
 import { downloadAndSaveFile } from "./utils/download";
 import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
-import { getExt, getFileUrl, getSavedPath } from "./utils/file";
+import { getExt, getFileUrl, getSavePath } from "./utils/file";
 import type { MessageUpdate } from "./type";
 import { Mutex } from "async-mutex";
 
@@ -145,19 +145,17 @@ export class TelegramBot {
 
   private async insertMessageToVault(content: string, options?: { msg?: MessageUpdate }): Promise<void> {
     const release = await this.mutex.acquire();
-
-    const savedPath = options?.msg
-      ? await getSavedPath(this.vault, this.settings, options.msg)
-      : await getSavedPath(this.vault, this.settings);
-    console.debug(`Determined saved path: ${savedPath.path}`);
-
     try {
+      const savedPath = options?.msg
+        ? await getSavePath(this.vault, this.settings, options.msg)
+        : await getSavePath(this.vault, this.settings);
+      // console.debug(`Determined saved path: ${savedPath.path}`);
       if (this.settings.reverse_order) {
         await insertMessageAtTop(this.vault, content, savedPath);
       } else {
         await insertMessage(this.vault, content, savedPath);
       }
-      console.debug(`Message inserted to vault: ${savedPath.path}`);
+      // console.debug(`Message inserted to vault: ${savedPath.path}`);
     } catch (error) {
       console.error(`Error inserting message to vault: ${error}`);
       throw error;
