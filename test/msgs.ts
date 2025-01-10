@@ -1,6 +1,4 @@
-import { MsgChannel, MsgNonChannel } from "../src/type";
-
-type MessageUpdate = MsgChannel | MsgNonChannel;
+import { MessageUpdate, MsgChannel, MsgNonChannel } from "../src/type";
 
 export const msgHidden: MessageUpdate = {
     "message_id": 1234,
@@ -114,33 +112,33 @@ export const msgFowardUser: MessageUpdate = {
 }
 
 export const channel_post_fw: MsgChannel = {
-            "message_id": 259,
-            "sender_chat": {
-                "id": -1001234567890,
-                "title": "📒",
-                "type": "channel",
-                "username": "rin"
-            },
-            "chat": {
-                "id": -1001234567890,
-                "title": "📒",
-                "type": "channel",
-                "username": "rin"
-            },
-            "date": 1736440840,
-            "forward_origin": {
-                "type": "channel",
-                "chat": {
-                    "id": -100133210000,
-                    "title": "Haha",
-                    "username": "haha",
-                    "type": "channel"
-                },
-                "message_id": 2174789,
-                "date": 1736440781
-            },
-            "text": "喵呜呜",
-        }
+    "message_id": 259,
+    "sender_chat": {
+        "id": -1001234567890,
+        "title": "📒",
+        "type": "channel",
+        "username": "rin"
+    },
+    "chat": {
+        "id": -1001234567890,
+        "title": "📒",
+        "type": "channel",
+        "username": "rin"
+    },
+    "date": 1736440840,
+    "forward_origin": {
+        "type": "channel",
+        "chat": {
+            "id": -100133210000,
+            "title": "Haha",
+            "username": "haha",
+            "type": "channel"
+        },
+        "message_id": 2174789,
+        "date": 1736440781
+    },
+    "text": "喵呜呜",
+}
 
 export const channel_post: MsgChannel = {
 

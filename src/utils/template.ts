@@ -1,8 +1,8 @@
 import { toMarkdownV2 } from "./markdown";
 import type { User } from "grammy/types";
 import type { MessageUpdate, MsgChannel, MsgNonChannel } from '../type';
-import * as moment from "moment";
-// import { moment } from "obsidian";
+// import * as moment from "moment";
+import { moment } from "obsidian";
 import * as Mustache from 'mustache';
 import type { TGInboxSettings } from "src/settings";
 
@@ -29,12 +29,12 @@ export interface PathData {
 }
 
 
-export function generateContentFromTemplate(msgUpd: MessageUpdate, setting: TGInboxSettings): string {
-    const data = buildMsgData(msgUpd.message, setting);
+export function generateContentFromTemplate(msg: MessageUpdate, setting: TGInboxSettings): string {
+    const data = buildMsgData(msg, setting);
     return Mustache.render(setting.message_template, data);
 }
 
-export function buildMsgData(msg: MsgChannel | MsgNonChannel, setting: TGInboxSettings): MessageData {
+export function buildMsgData(msg: MessageUpdate, setting: TGInboxSettings): MessageData {
     const forwardOrigin = getForwardOrigin(msg);
 
     const data: MessageData = {
@@ -51,7 +51,7 @@ export function buildMsgData(msg: MsgChannel | MsgNonChannel, setting: TGInboxSe
     return data;
 }
 
-export function generatePath(msg: MsgChannel | MsgNonChannel, setting: TGInboxSettings) {
+export function generatePath(msg: MessageUpdate, setting: TGInboxSettings) {
     const data = rereplaceSpecialChar(buildPathData(msg));
     const path = Mustache.render(setting.custom_file_path, data);
     return path;
@@ -67,7 +67,7 @@ function rereplaceSpecialChar(data: PathData) {
     return data;
 }
 
-export function buildPathData(msg: MsgChannel | MsgNonChannel) {
+export function buildPathData(msg: MessageUpdate) {
     const data: PathData = {
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         first_name: msg.from ? msg.from.first_name : msg.chat.title!,
@@ -80,7 +80,7 @@ export function buildPathData(msg: MsgChannel | MsgNonChannel) {
     return data;
 }
 
-function getForwardOrigin(msg: MsgChannel | MsgNonChannel) {
+function getForwardOrigin(msg: MessageUpdate) {
     if (!msg.forward_origin) {
         return null;
     }
@@ -129,7 +129,7 @@ function getUserName(user: User) {
     return `${user.first_name}${user.last_name ? ` ${user.last_name}` : ''}`;
 }
 
-function getSenderName(msg: MsgChannel | MsgNonChannel) {
+function getSenderName(msg: MessageUpdate) {
     if (msg.from) {
         return getUserName(msg.from);
     } else {

@@ -7,7 +7,6 @@ import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
 import { getExt, getFileUrl, getSavePath } from "./utils/file";
 import { Mutex } from "async-mutex";
-import { MessageUpdate } from "./type";
 
 export class TelegramBot {
   bot: Bot;
@@ -100,18 +99,8 @@ export class TelegramBot {
 
   private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on(["message:text", "channel_post:text"], async (ctx) => {
-      const msg: MessageUpdate = ctx.channelPost
-        ? {
-          type: 'channel',
-          message: ctx.channelPost
-        }
-        : {
-          type: 'private',
-          message: ctx.message
-        };
-
-      const content = generateContentFromTemplate(msg, settings)
-      await this.insertMessageToVault(content, { msg })
+      const content = generateContentFromTemplate(ctx.msg, settings)
+      await this.insertMessageToVault(content, { msg: ctx.msg })
         .then(async _ => {
           try {
             await ctx.react("❤");
@@ -126,20 +115,11 @@ export class TelegramBot {
     });
 
     this.bot.on(["message:media", "channel_post:media"], async (ctx) => {
-      const msg: MessageUpdate = ctx.channelPost
-        ? {
-          type: 'channel',
-          message: ctx.channelPost
-        }
-        : {
-          type: 'private',
-          message: ctx.message
-        };
-      let content = generateContentFromTemplate(msg, settings);
+      let content = generateContentFromTemplate(ctx.msg, settings);
 
       if (settings.download_media) {
         const file = await ctx.getFile();
-        const filename_ext = this.generateFilename(msg.message, file);
+        const filename_ext = this.generateFilename(ctx.msg, file);
         const url = getFileUrl(file, this.bot.token);
 
         console.debug(`Attempting to download media: ${filename_ext} from ${url}`);
@@ -181,13 +161,11 @@ export class TelegramBot {
       const savedPath = options?.msg
         ? await getSavePath(this.vault, this.settings, options.msg)
         : await getSavePath(this.vault, this.settings);
-      // console.debug(`Determined saved path: ${savedPath.path}`);
       if (this.settings.reverse_order) {
         await insertMessageAtTop(this.vault, content, savedPath);
       } else {
         await insertMessage(this.vault, content, savedPath);
       }
-      // console.debug(`Message inserted to vault: ${savedPath.path}`);
     } catch (error) {
       console.error(`Error inserting message to vault: ${error}`);
       throw error;
