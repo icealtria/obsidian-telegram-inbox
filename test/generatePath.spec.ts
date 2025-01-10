@@ -1,0 +1,39 @@
+import { TGInboxSettings } from "src/settings";
+import { generatePath, PathData } from "../src/utils/template";
+import { msgFowardUser, channel_post_fw, channel_post } from "./msgs";
+
+const settings: TGInboxSettings = {
+    token: "",
+    marker: "",
+    allow_users: [],
+    download_dir: "",
+    download_media: false,
+    message_template: "",
+    markdown_escaper: false,
+    is_custom_file: false,
+    custom_file_path: "/Telegram/{{name}}-{{origin_name}}-{{user_id}}/{{date}}-{{time}}",
+    disable_auto_reception: true,
+    reverse_order: false
+}
+
+describe('generatePath', () => {
+
+    test('forward message', () => {
+        const path = "/Telegram/Neko ✨-猫-12345/2021-07-21-14-00"
+
+        expect(generatePath(msgFowardUser, settings)).toBe(path)
+    })
+
+    test('channel_post', () => {
+        const path = "/Telegram/📒-📒--1001234567890/2025-01-10-13-03"
+
+        expect(generatePath(channel_post, settings)).toBe(path)
+    })
+
+    test('channel_post_fw', () => {
+        const path = "/Telegram/📒-Haha--1001234567890/2025-01-10-00-40"
+
+        expect(generatePath(channel_post_fw, settings)).toBe(path)
+
+    })
+})

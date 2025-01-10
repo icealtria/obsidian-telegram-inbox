@@ -1,7 +1,8 @@
 import { toMarkdownV2 } from "./markdown";
 import type { User } from "grammy/types";
 import type { MessageUpdate, MsgChannel, MsgNonChannel } from '../type';
-import { moment } from "obsidian";
+import * as moment from "moment";
+// import { moment } from "obsidian";
 import * as Mustache from 'mustache';
 import type { TGInboxSettings } from "src/settings";
 
@@ -18,7 +19,7 @@ export interface MessageData {
     origin_link?: string;
 }
 
-interface PathData {
+export interface PathData {
     date: string;
     first_name: string;
     name: string;
@@ -28,8 +29,8 @@ interface PathData {
 }
 
 
-export function generateContentFromTemplate(msgUdp: MessageUpdate, setting: TGInboxSettings): string {
-    const data = buildMsgData(msgUdp.message, setting);
+export function generateContentFromTemplate(msgUpd: MessageUpdate, setting: TGInboxSettings): string {
+    const data = buildMsgData(msgUpd.message, setting);
     return Mustache.render(setting.message_template, data);
 }
 
@@ -42,15 +43,15 @@ export function buildMsgData(msg: MsgChannel | MsgNonChannel, setting: TGInboxSe
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         time: moment(msg.date * 1000).format("HH:mm"),
         name: getSenderName(msg),
-        username: msg.from ? msg.from.username : msg.chat.username,
-        user_id: msg.from?.id || 0,
+        username: msg.chat.username,
+        user_id: msg.from ? msg.from.id : msg.chat.id,
         ...forwardOrigin
     };
 
     return data;
 }
 
-export function generatePath(msg: MessageUpdate, setting: TGInboxSettings) {
+export function generatePath(msg: MsgChannel | MsgNonChannel, setting: TGInboxSettings) {
     const data = rereplaceSpecialChar(buildPathData(msg));
     const path = Mustache.render(setting.custom_file_path, data);
     return path;
@@ -66,17 +67,14 @@ function rereplaceSpecialChar(data: PathData) {
     return data;
 }
 
-function buildPathData(msgUdp: MessageUpdate) {
-    const msg = msgUdp.message;
-    const isPrivate = msgUdp.type === 'private';
-
+export function buildPathData(msg: MsgChannel | MsgNonChannel) {
     const data: PathData = {
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
-        first_name: isPrivate ? msg.from!.first_name : msg.chat.title!,
-        name: getSenderName(msgUdp.message),
+        first_name: msg.from ? msg.from.first_name : msg.chat.title!,
+        name: getSenderName(msg),
         time: moment(msg.date * 1000).format("HH-mm"),
-        user_id: isPrivate ? msg.from?.id || 0 : msg.chat.id,
-        origin_name: getForwardOrigin(msg)?.origin_name || getSenderName(msgUdp.message),
+        user_id: msg.from ? msg.from.id : msg.chat.id,
+        origin_name: getForwardOrigin(msg)?.origin_name || getSenderName(msg),
     };
 
     return data;
