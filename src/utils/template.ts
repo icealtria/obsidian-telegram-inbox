@@ -1,6 +1,6 @@
 import { toMarkdownV2 } from "./markdown";
 import type { User } from "grammy/types";
-import type { MessageUpdate } from '../type';
+import type { MessageUpdate, MsgChannel, MsgNonChannel } from '../type';
 import { moment } from "obsidian";
 import * as Mustache from 'mustache';
 import type { TGInboxSettings } from "src/settings";
@@ -28,12 +28,12 @@ interface PathData {
 }
 
 
-export function generateContentFromTemplate(msg: MessageUpdate, setting: TGInboxSettings): string {
-    const data = buildMsgData(msg, setting);
+export function generateContentFromTemplate(msgUdp: MessageUpdate, setting: TGInboxSettings): string {
+    const data = buildMsgData(msgUdp.message, setting);
     return Mustache.render(setting.message_template, data);
 }
 
-export function buildMsgData(msg: MessageUpdate, setting: TGInboxSettings): MessageData {
+export function buildMsgData(msg: MsgChannel | MsgNonChannel, setting: TGInboxSettings): MessageData {
     const forwardOrigin = getForwardOrigin(msg);
 
     const data: MessageData = {
@@ -42,7 +42,7 @@ export function buildMsgData(msg: MessageUpdate, setting: TGInboxSettings): Mess
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         time: moment(msg.date * 1000).format("HH:mm"),
         name: getSenderName(msg),
-        username: msg.from?.username,
+        username: msg.from ? msg.from.username : msg.chat.username,
         user_id: msg.from?.id || 0,
         ...forwardOrigin
     };
@@ -62,23 +62,27 @@ function rereplaceSpecialChar(data: PathData) {
     data.first_name = data.first_name.replace(regex, "~");
     data.name = data.name.replace(regex, "~");
     data.origin_name = data.origin_name.replace(regex, "~");
-    
+
     return data;
 }
 
-function buildPathData(msg: MessageUpdate) {
+function buildPathData(msgUdp: MessageUpdate) {
+    const msg = msgUdp.message;
+    const isPrivate = msgUdp.type === 'private';
+
     const data: PathData = {
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
-        first_name: msg.from.first_name,
-        name: getSenderName(msg),
+        first_name: isPrivate ? msg.from!.first_name : msg.chat.title!,
+        name: getSenderName(msgUdp.message),
         time: moment(msg.date * 1000).format("HH-mm"),
-        user_id: msg.from?.id || 0,
-        origin_name: getForwardOrigin(msg)?.origin_name || getSenderName(msg),
+        user_id: isPrivate ? msg.from?.id || 0 : msg.chat.id,
+        origin_name: getForwardOrigin(msg)?.origin_name || getSenderName(msgUdp.message),
     };
+
     return data;
 }
 
-function getForwardOrigin(msg: MessageUpdate) {
+function getForwardOrigin(msg: MsgChannel | MsgNonChannel) {
     if (!msg.forward_origin) {
         return null;
     }
@@ -127,6 +131,10 @@ function getUserName(user: User) {
     return `${user.first_name}${user.last_name ? ` ${user.last_name}` : ''}`;
 }
 
-function getSenderName(msg: MessageUpdate) {
-    return `${msg.from.first_name}${msg.from?.last_name ? ` ${msg.from.last_name}` : ''}`;
+function getSenderName(msg: MsgChannel | MsgNonChannel) {
+    if (msg.from) {
+        return getUserName(msg.from);
+    } else {
+        return msg.chat.title!;
+    }
 }
