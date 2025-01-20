@@ -15,8 +15,8 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       grammy:
-        specifier: ^1.21.1
-        version: 1.21.1
+        specifier: ^1.34.0
+        version: 1.34.0
       mustache:
         specifier: ^4.1.0
         version: 4.1.0
@@ -396,8 +396,8 @@ packages:
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@grammyjs/types@3.5.2':
-    resolution: {integrity: sha512-KZlJcOdgD8N6SMIHWfwmb11L5/L2+rptWBxCexbzNCry/wfLXFFGFniyUrySnvFo+cWMxgy5GuImwY3mhUrP8g==}
+  '@grammyjs/types@3.18.0':
+    resolution: {integrity: sha512-/VpQcT6Z0+Lw6H6jv2JvnDmqB1/9rjbFdDBlPBPUW3kQ1bWfjzfaiVk2+J2eiid3o3sLaPp3ZK0XjEI1gWNc3g==}
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -1085,8 +1085,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  grammy@1.21.1:
-    resolution: {integrity: sha512-gXHHU83yffHtxutuQlyefClFZN+3bZrmGXYcKVAE2R9SSNlnW9ohF4dC7omn6gHhBoZNRiRS4kumiFc12sal3A==}
+  grammy@1.34.0:
+    resolution: {integrity: sha512-YSLUSLdwycufB0Si9em+Ef3aXt7Vq0LYuGgwF4+ZskPb6+3RzrPdkh28qQNKhCeIXKodgMKQ5CxAHf/fLJZufg==}
     engines: {node: ^12.20.0 || >=14.13.1}
 
   graphemer@1.4.0:
@@ -2158,7 +2158,7 @@ snapshots:
 
   '@eslint/js@8.57.0': {}
 
-  '@grammyjs/types@3.5.2': {}
+  '@grammyjs/types@3.18.0': {}
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
@@ -3021,9 +3021,9 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  grammy@1.21.1:
+  grammy@1.34.0:
     dependencies:
-      '@grammyjs/types': 3.5.2
+      '@grammyjs/types': 3.18.0
       abort-controller: 3.0.0
       debug: 4.3.4
       node-fetch: 2.7.0
