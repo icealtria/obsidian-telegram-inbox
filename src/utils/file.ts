@@ -25,7 +25,7 @@ export async function getSavePath(
             let normalizedPath = settings.custom_file_path
                 ? normalizePath(generatePath(msg, settings))
                 : normalizePath('Telegram-Inbox.md');
-
+        
             if (!normalizedPath.endsWith('.md')) {
                 normalizedPath += '.md';
             }

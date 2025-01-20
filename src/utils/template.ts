@@ -1,6 +1,7 @@
 import { toMarkdownV2 } from "./markdown";
 import type { User } from "grammy/types";
-import type { MessageUpdate } from '../type';
+import type { MessageUpdate, MsgChannel, MsgNonChannel } from '../type';
+// import * as moment from "moment";
 import { moment } from "obsidian";
 import * as Mustache from 'mustache';
 import type { TGInboxSettings } from "src/settings";
@@ -18,7 +19,7 @@ export interface MessageData {
     origin_link?: string;
 }
 
-interface PathData {
+export interface PathData {
     date: string;
     first_name: string;
     name: string;
@@ -42,8 +43,8 @@ export function buildMsgData(msg: MessageUpdate, setting: TGInboxSettings): Mess
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
         time: moment(msg.date * 1000).format("HH:mm"),
         name: getSenderName(msg),
-        username: msg.from?.username,
-        user_id: msg.from?.id || 0,
+        username: msg.chat.username,
+        user_id: msg.from ? msg.from.id : msg.chat.id,
         ...forwardOrigin
     };
 
@@ -62,19 +63,20 @@ function rereplaceSpecialChar(data: PathData) {
     data.first_name = data.first_name.replace(regex, "~");
     data.name = data.name.replace(regex, "~");
     data.origin_name = data.origin_name.replace(regex, "~");
-    
+
     return data;
 }
 
-function buildPathData(msg: MessageUpdate) {
+export function buildPathData(msg: MessageUpdate) {
     const data: PathData = {
         date: moment(msg.date * 1000).format("YYYY-MM-DD"),
-        first_name: msg.from.first_name,
+        first_name: msg.from ? msg.from.first_name : msg.chat.title!,
         name: getSenderName(msg),
         time: moment(msg.date * 1000).format("HH-mm"),
-        user_id: msg.from?.id || 0,
+        user_id: msg.from ? msg.from.id : msg.chat.id,
         origin_name: getForwardOrigin(msg)?.origin_name || getSenderName(msg),
     };
+
     return data;
 }
 
@@ -128,5 +130,9 @@ function getUserName(user: User) {
 }
 
 function getSenderName(msg: MessageUpdate) {
-    return `${msg.from.first_name}${msg.from?.last_name ? ` ${msg.from.last_name}` : ''}`;
+    if (msg.from) {
+        return getUserName(msg.from);
+    } else {
+        return msg.chat.title!;
+    }
 }

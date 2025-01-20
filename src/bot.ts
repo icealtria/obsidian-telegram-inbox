@@ -6,8 +6,8 @@ import { downloadAndSaveFile } from "./utils/download";
 import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
 import { getExt, getFileUrl, getSavePath } from "./utils/file";
-import type { MessageUpdate } from "./type";
 import { Mutex } from "async-mutex";
+import { MessageUpdate } from "./type";
 
 export class TelegramBot {
   bot: Bot;
@@ -57,9 +57,12 @@ export class TelegramBot {
 
   private createRestrictToAllowedUsersMiddleware(settings: TGInboxSettings): Composer<Context> {
     return new Composer().use(async (ctx: Context, next) => {
-      const userId = ctx.from?.id;
-      const username = ctx.from?.username;
-
+      if (!ctx.chat || (ctx.chat.type !== 'private' && ctx.chat.type !== 'channel')) {
+        console.log('Unauthorized chat type:', ctx.chat?.type);
+        return;
+      }
+      const userId = ctx.chat?.id;
+      const username = ctx.chat?.username;
       if (
         (username && settings.allow_users.includes(username)) ||
         (userId && settings.allow_users.includes(userId.toString()))
@@ -96,24 +99,28 @@ export class TelegramBot {
   }
 
   private setupMessageHandlers(settings: TGInboxSettings) {
-    this.bot.on("message:text", async (ctx) => {
-      console.debug(`Received text message [${ctx.message.message_id}] from user ${ctx.from?.username || ctx.from?.id}`);
+    this.bot.on(["message:text", "channel_post:text"], async (ctx) => {
       const content = generateContentFromTemplate(ctx.msg, settings)
-      await this.insertMessageToVault(content, { msg: ctx.message })
-        .then(_ => ctx.react("❤"))
+      await this.insertMessageToVault(content, { msg: ctx.msg })
+        .then(async _ => {
+          try {
+            await ctx.react("❤");
+          } catch (reactionErr) {
+            console.error("Failed to set reaction");
+          }
+        })
         .catch((err) => {
           console.error(`Failed to insert text message to vault. Error: ${err.message}`, err);
           ctx.reply(`Failed to insert text message to vault. Error: ${err.message}`, err);
         });
     });
 
-    this.bot.on("message:media", async (ctx) => {
-      console.debug(`Received media message [${ctx.message.message_id}] from user ${ctx.from?.username || ctx.from?.id}`);
-      let content = generateContentFromTemplate(ctx.message, settings);
+    this.bot.on(["message:media", "channel_post:media"], async (ctx) => {
+      let content = generateContentFromTemplate(ctx.msg, settings);
 
       if (settings.download_media) {
         const file = await ctx.getFile();
-        const filename_ext = this.generateFilename(ctx.message, file);
+        const filename_ext = this.generateFilename(ctx.msg, file);
         const url = getFileUrl(file, this.bot.token);
 
         console.debug(`Attempting to download media: ${filename_ext} from ${url}`);
@@ -127,8 +134,14 @@ export class TelegramBot {
         }
       }
 
-      await this.insertMessageToVault(content, { msg: ctx.message })
-        .then(_ => ctx.react("❤"))
+      await this.insertMessageToVault(content, { msg: ctx.msg })
+        .then(async _ => {
+          try {
+            await ctx.react("❤");
+          } catch (reactionErr) {
+            console.error("Failed to set reaction");
+          }
+        })
         .catch((err) => {
           console.error(`Failed to insert media message to vault. Error: ${err.message}`, err);
           ctx.reply(`Failed to insert media message to vault. Error: ${err.message}`, err);
@@ -143,19 +156,18 @@ export class TelegramBot {
     return `${dateStr}-${message_id}.${extension}`;
   }
 
-  private async insertMessageToVault(content: string, options?: { msg?: MessageUpdate }): Promise<void> {
+  private async insertMessageToVault(content: string, options?: { msg: MessageUpdate }): Promise<void> {
     const release = await this.mutex.acquire();
     try {
       const savedPath = options?.msg
         ? await getSavePath(this.vault, this.settings, options.msg)
         : await getSavePath(this.vault, this.settings);
-      // console.debug(`Determined saved path: ${savedPath.path}`);
+
       if (this.settings.reverse_order) {
         await insertMessageAtTop(this.vault, content, savedPath);
       } else {
         await insertMessage(this.vault, content, savedPath);
       }
-      // console.debug(`Message inserted to vault: ${savedPath.path}`);
     } catch (error) {
       console.error(`Error inserting message to vault: ${error}`);
       throw error;

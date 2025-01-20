@@ -1,4 +1,4 @@
-import { MessageUpdate } from "../src/type";
+import { MessageUpdate, MsgChannel, MsgNonChannel } from "../src/type";
 
 export const msgHidden: MessageUpdate = {
     "message_id": 1234,
@@ -110,3 +110,52 @@ export const msgFowardUser: MessageUpdate = {
     },
     "text": "喵呜呜～"
 }
+
+export const channel_post_fw: MsgChannel = {
+    "message_id": 259,
+    "sender_chat": {
+        "id": -1001234567890,
+        "title": "📒",
+        "type": "channel",
+        "username": "rin"
+    },
+    "chat": {
+        "id": -1001234567890,
+        "title": "📒",
+        "type": "channel",
+        "username": "rin"
+    },
+    "date": 1736440840,
+    "forward_origin": {
+        "type": "channel",
+        "chat": {
+            "id": -100133210000,
+            "title": "Haha",
+            "username": "haha",
+            "type": "channel"
+        },
+        "message_id": 2174789,
+        "date": 1736440781
+    },
+    "text": "喵呜呜",
+}
+
+export const channel_post: MsgChannel = {
+
+    "message_id": 263,
+    "sender_chat": {
+        "id": -1001234567890,
+        "title": "📒",
+        "username": "rin",
+        "type": "channel"
+    },
+    "chat": {
+        "id": -1001234567890,
+        "title": "📒",
+        "username": "rin",
+        "type": "channel"
+    },
+    "date": 1736485426,
+    "text": "test"
+}
+

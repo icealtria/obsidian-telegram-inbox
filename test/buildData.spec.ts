@@ -1,7 +1,8 @@
 import { type MessageData, buildMsgData } from "../src/utils/template";
 import { describe, expect, test } from "@jest/globals"
-import { msg, msgHidden, msgFowardUser, msgCh } from "./msgs";
+import { msg, msgHidden, msgFowardUser, msgCh, channel_post_fw, channel_post } from "./msgs";
 import type { TGInboxSettings } from "src/settings";
+import { MsgChannel, MsgNonChannel } from "src/type";
 
 
 const settings: TGInboxSettings = {
@@ -87,5 +88,37 @@ describe('buildData', () => {
         expect(buildMsgData(msgCh, settings)).toStrictEqual(
             data
         )
+    })
+
+    test("channel post", () => {
+        const data: MessageData = {
+            message_id: 263,
+            text: "test",
+            date: "2025-01-10",
+            time: "13:03",
+            name: "📒",
+            username: "rin",
+            user_id: -1001234567890,
+        }
+
+        expect(buildMsgData(channel_post, settings)).toStrictEqual(data)
+    })
+
+    test("channel post forward", () => {
+
+        const data: MessageData = {
+            origin_name: "Haha",
+            origin_username: "haha",
+            message_id: 259,
+            text: "喵呜呜",
+            date: "2025-01-10",
+            time: "00:40",
+            name: "📒",
+            username: "rin",
+            user_id: -1001234567890,
+            origin_link: "https://t.me/haha/2174789"
+        }
+        expect(buildMsgData(channel_post_fw, settings)).toStrictEqual(data)
+
     })
 });
