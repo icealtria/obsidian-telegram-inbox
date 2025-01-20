@@ -7,6 +7,7 @@ import type { File, Message } from "grammy/types";
 import { generateContentFromTemplate } from "./utils/template";
 import { getExt, getFileUrl, getSavePath } from "./utils/file";
 import { Mutex } from "async-mutex";
+import { MessageUpdate } from "./type";
 
 export class TelegramBot {
   bot: Bot;
@@ -133,7 +134,7 @@ export class TelegramBot {
         }
       }
 
-      await this.insertMessageToVault(content, { msg: ctx.message })
+      await this.insertMessageToVault(content, { msg: ctx.msg })
         .then(async _ => {
           try {
             await ctx.react("❤");
@@ -155,12 +156,13 @@ export class TelegramBot {
     return `${dateStr}-${message_id}.${extension}`;
   }
 
-  private async insertMessageToVault(content: string, options?: { msg: any }): Promise<void> {
+  private async insertMessageToVault(content: string, options?: { msg: MessageUpdate }): Promise<void> {
     const release = await this.mutex.acquire();
     try {
       const savedPath = options?.msg
         ? await getSavePath(this.vault, this.settings, options.msg)
         : await getSavePath(this.vault, this.settings);
+
       if (this.settings.reverse_order) {
         await insertMessageAtTop(this.vault, content, savedPath);
       } else {
