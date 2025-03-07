@@ -57,8 +57,8 @@ export class TelegramBot {
 
   private createRestrictToAllowedUsersMiddleware(settings: TGInboxSettings): Composer<Context> {
     return new Composer().use(async (ctx: Context, next) => {
-      if (!ctx.chat || (ctx.chat.type !== 'private' && ctx.chat.type !== 'channel')) {
-        console.log('Unauthorized chat type:', ctx.chat?.type);
+      if (!ctx.chat || (ctx.chat.type !== 'private' && ctx.chat.type !== 'channel' && ctx.chat.type !== 'supergroup')) {
+        console.log('Unauthorized chat type:', ctx.chat?.type, ctx.chat?.id);
         return;
       }
       const userId = ctx.chat?.id;
