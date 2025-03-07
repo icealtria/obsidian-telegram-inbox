@@ -22,3 +22,11 @@ Requires Node.js environment.
 ### Install
 - Copy over `main.js`, `manifest.json`, `styles.css` to your vault `VaultFolder/.obsidian/plugins/telegram-inbox/`.
 
+## Bug Reporting
+If you encounter any issues:
+1. Press `Ctrl + Shift + I` (Windows/Linux) or `Cmd + Option + I` (macOS) to open the developer console
+2. Look for any error messages in the console
+3. When reporting bugs, please include:
+   - Console error messages
+   - Steps to reproduce the issue
+   - Your operating system and Obsidian version
