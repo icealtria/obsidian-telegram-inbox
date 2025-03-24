@@ -134,6 +134,11 @@ export class TelegramBot {
         }
       }
 
+      if (!settings.download_media && content.length === 0) {
+        console.debug("No content to insert. Skipping.");
+        return;
+      }
+
       await this.insertMessageToVault(content, { msg: ctx.msg })
         .then(async _ => {
           try {
