@@ -14,6 +14,7 @@ export interface TGInboxSettings {
   custom_file_path: string;
   disable_auto_reception: boolean;
   reverse_order: boolean;
+  remove_formatting: boolean;
 }
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -169,6 +170,24 @@ export class TGInboxSettingTab extends PluginSettingTab {
         toggle.setValue(this.plugin.settings.disable_auto_reception)
           .onChange(async (value) => {
             this.plugin.settings.disable_auto_reception = value;
+            await this.plugin.saveSettings();
+          });
+      })
+
+    new Setting(containerEl)
+     .setName("Remove text formatting")
+     .setDesc(createFragment((fragment) => {
+       fragment.append(
+         "Remove text formatting like ",
+         createEl("b", { text: "bold" }), ", ",
+         createEl("i", { text: "italic" }), ", ",
+         createEl("s", { text: "strikethrough" }), " etc."
+       );
+     }))
+     .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.remove_formatting)
+         .onChange(async (value) => {
+            this.plugin.settings.remove_formatting = value;
             await this.plugin.saveSettings();
           });
       })
