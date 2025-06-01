@@ -45,6 +45,7 @@ const markdownSerialiser: Serialiser = (match: string, node?: Node) => {
 };
 
 export function toMarkdownV2(msg: MsgNonChannel | MsgChannel, settings: TGInboxSettings): string {
+  if (settings.remove_formatting) return msg.text ?? "";
   const selectedEscaper = settings.markdown_escaper ? escapers.MarkdownV2 : escapers.HTML;
   return serialiseWith(markdownSerialiser, selectedEscaper)(msg as Message);
 }

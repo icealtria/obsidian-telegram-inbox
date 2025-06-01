@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   custom_file_path: "Telegram-Inbox.md",
   disable_auto_reception: false,
   reverse_order: false,
+  remove_formatting: false,
 };
 
 export default class TGInbox extends Plugin {
