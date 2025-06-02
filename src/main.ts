@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   disable_auto_reception: false,
   reverse_order: false,
   remove_formatting: false,
+  after_insert: "react",
 };
 
 export default class TGInbox extends Plugin {

@@ -2,6 +2,8 @@ import { type App, PluginSettingTab, Setting } from "obsidian";
 import type TGInbox from "./main";
 import * as Mustache from 'mustache';
 
+type afterInsertAction = "nothing" | "react" | "delete"
+
 export interface TGInboxSettings {
   token: string;
   marker: string;
@@ -15,6 +17,7 @@ export interface TGInboxSettings {
   disable_auto_reception: boolean;
   reverse_order: boolean;
   remove_formatting: boolean;
+  after_insert: afterInsertAction;
 }
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -175,18 +178,18 @@ export class TGInboxSettingTab extends PluginSettingTab {
       })
 
     new Setting(containerEl)
-     .setName("Remove text formatting")
-     .setDesc(createFragment((fragment) => {
-       fragment.append(
-         "Remove text formatting like ",
-         createEl("b", { text: "bold" }), ", ",
-         createEl("i", { text: "italic" }), ", ",
-         createEl("s", { text: "strikethrough" }), " etc."
-       );
-     }))
-     .addToggle((toggle) => {
+      .setName("Remove text formatting")
+      .setDesc(createFragment((fragment) => {
+        fragment.append(
+          "Remove text formatting like ",
+          createEl("b", { text: "bold" }), ", ",
+          createEl("i", { text: "italic" }), ", ",
+          createEl("s", { text: "strikethrough" }), " etc."
+        );
+      }))
+      .addToggle((toggle) => {
         toggle.setValue(this.plugin.settings.remove_formatting)
-         .onChange(async (value) => {
+          .onChange(async (value) => {
             this.plugin.settings.remove_formatting = value;
             await this.plugin.saveSettings();
           });

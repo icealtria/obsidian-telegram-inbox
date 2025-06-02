@@ -15,6 +15,7 @@ const settings: TGInboxSettings = {
     disable_auto_reception: true,
     reverse_order: false,
     remove_formatting: false,
+    after_insert: "nothing"
 }
 
 describe('generatePath', () => {

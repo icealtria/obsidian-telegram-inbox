@@ -94,7 +94,7 @@ export class TelegramBot {
     this.bot.command("task", async (ctx) => {
       const task = `- [ ] ${ctx.match}`;
       this.insertMessageToVault(task);
-      ctx.react("❤");
+      this.afterInsert(ctx);
     });
   }
 
@@ -103,11 +103,7 @@ export class TelegramBot {
       const content = generateContentFromTemplate(ctx.msg, settings)
       await this.insertMessageToVault(content, { msg: ctx.msg })
         .then(async _ => {
-          try {
-            await ctx.react("❤");
-          } catch (reactionErr) {
-            console.error("Failed to set reaction");
-          }
+          await this.afterInsert(ctx);
         })
         .catch((err) => {
           console.error(`Failed to insert text message to vault. Error: ${err.message}`, err);
@@ -141,11 +137,7 @@ export class TelegramBot {
 
       await this.insertMessageToVault(content, { msg: ctx.msg })
         .then(async _ => {
-          try {
-            await ctx.react("❤");
-          } catch (reactionErr) {
-            console.error("Failed to set reaction");
-          }
+          await this.afterInsert(ctx);
         })
         .catch((err) => {
           console.error(`Failed to insert media message to vault. Error: ${err.message}`, err);
@@ -178,6 +170,26 @@ export class TelegramBot {
       throw error;
     } finally {
       release();
+    }
+  }
+
+  private async afterInsert(ctx: Context) {
+    try {
+      switch (this.settings.after_insert) {
+        case "react":
+          await ctx.react("❤");
+          break;
+        case "delete":
+          await ctx.deleteMessage();
+          break;
+        case "nothing":
+          break;
+        default:
+          await ctx.react("❤");
+          break;
+      }
+    } catch (reactionErr) {
+      console.error("Failed to set reaction");
     }
   }
 }
