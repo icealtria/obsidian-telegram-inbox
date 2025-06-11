@@ -39,7 +39,7 @@ export default class TGInbox extends Plugin {
     }
 
     runAfterSync.call(this, () => {
-      this.launchBot();
+      this.initBot();
     });
   }
 
@@ -83,7 +83,7 @@ export default class TGInbox extends Plugin {
     await this.saveData(this.settings);
   }
 
-  async launchBot() {
+  async initBot() {
     try {
       if (!this.settings.token) {
         new Notice("Telegram bot token not set");

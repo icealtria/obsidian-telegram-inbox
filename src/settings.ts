@@ -62,7 +62,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
       )
       .addButton((button) => {
         button.setButtonText("Restart").onClick(async () => {
-          this.plugin.launchBot();
+          this.plugin.initBot();
           this.statusEl.setText("Restarting...");
         });
       });
