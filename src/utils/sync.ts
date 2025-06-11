@@ -1,13 +1,6 @@
-import { Notice, type Plugin } from "obsidian";
+import { App, Notice, type Plugin } from "obsidian";
 
 function waitForObsidianSync(sync: any, cb: () => void) {
-    if (!sync || sync.syncStatus?.toLowerCase() === "uninitialized") {
-        // If sync is not available, execute the callback immediately.
-        console.debug("Obsidian Sync plugin not detected or uninitialized.");
-        cb();
-        return;
-    }
-
     new Notice("Waiting for Obsidian Sync to complete...");
     if (sync.syncStatus?.toLowerCase() === "fully synced") {
         cb();
@@ -69,12 +62,9 @@ function waitForRemotelySync(remotely_sync: any, cb: () => void) {
 }
 
 export function runAfterSync(this: Plugin, cb: () => void) {
-    // @ts-ignore
-    const remotely_save = this.app.plugins.plugins["remotely-save"];
-    // @ts-ignore
-    const remotely_sync = this.app.plugins.plugins["remotely-secure"];
-    // @ts-ignore
-    const sync = this.app?.internalPlugins?.plugins?.sync?.instance;
+    const remotely_save = getRemotelySave(this.app);
+    const remotely_sync = getRemotelySync(this.app);
+    const sync = getSync(this.app);
 
     let waitCount = 0;
     const total = [remotely_save, remotely_sync, sync].filter(Boolean).length;
@@ -91,4 +81,42 @@ export function runAfterSync(this: Plugin, cb: () => void) {
     if (remotely_save) waitForRemotelySaveSync(remotely_save, done);
     if (remotely_sync) waitForRemotelySync(remotely_sync, done);
     if (sync) waitForObsidianSync(sync, done);
+}
+
+export function hasSyncPlugin(app: App): boolean {
+    const sync = getSync(app);
+    const remotely_save = getRemotelySave(app);
+    const remotely_sync = getRemotelySync(app);
+    return !!(sync || remotely_save || remotely_sync);
+}
+
+export function getRemotelySave(app: App): any | null {
+    // @ts-ignore
+    return app.plugins.plugins["remotely-save"] || null;
+}
+
+export function getRemotelySync(app: App): any | null {
+    // @ts-ignore
+    return app.plugins.plugins["remotely-secure"] || null;
+}
+
+export function getSync(app: App): any | null {
+    // @ts-ignore
+    const sync = app.internalPlugins?.plugins?.sync?.instance;
+    return sync && sync.syncStatus?.toLowerCase() !== "uninitialized" ? sync : null;
+}
+
+export function getSyncStatus(app: App): {
+    obsidianSync: boolean;
+    remotelySave: boolean;
+    remotelySync: boolean;
+} {
+    const sync = getSync(app);
+    const remotely_save = getRemotelySave(app);
+    const remotely_sync = getRemotelySync(app);
+    return {
+        obsidianSync: !!sync,
+        remotelySave: !!remotely_save,
+        remotelySync: !!remotely_sync,
+    };
 }

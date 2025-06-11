@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   disable_auto_reception: false,
   reverse_order: false,
   remove_formatting: false,
+  run_after_sync: true,
 };
 
 export default class TGInbox extends Plugin {
@@ -38,9 +39,13 @@ export default class TGInbox extends Plugin {
       });
     }
 
-    runAfterSync.call(this, () => {
+    if (this.settings.run_after_sync) {
+      runAfterSync.call(this, () => {
+        this.initBot();
+      });
+    } else {
       this.initBot();
-    });
+    }
   }
 
   addCommands() {

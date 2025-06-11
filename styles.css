@@ -11,3 +11,13 @@ If your plugin does not need CSS, delete this file.
   justify-content: space-between;
   align-items: center;
 }
+
+.tg-inbox-allowed-users textarea {
+  width: 200px;
+  height: 100px;
+  resize: vertical;
+}
+
+.tg-inbox-sync-status {
+  font-size: 0.8em;
+}
