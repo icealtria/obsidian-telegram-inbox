@@ -1,6 +1,7 @@
 import { type App, PluginSettingTab, Setting } from "obsidian";
 import type TGInbox from "./main";
 import * as Mustache from 'mustache';
+import { getSyncStatus, hasSyncPlugin } from "./utils/sync";
 
 export interface TGInboxSettings {
   token: string;
@@ -15,6 +16,7 @@ export interface TGInboxSettings {
   disable_auto_reception: boolean;
   reverse_order: boolean;
   remove_formatting: boolean;
+  run_after_sync: boolean;
 }
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -62,7 +64,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
       )
       .addButton((button) => {
         button.setButtonText("Restart").onClick(async () => {
-          this.plugin.launchBot();
+          this.plugin.initBot();
           this.statusEl.setText("Restarting...");
         });
       });
@@ -175,18 +177,18 @@ export class TGInboxSettingTab extends PluginSettingTab {
       })
 
     new Setting(containerEl)
-     .setName("Remove text formatting")
-     .setDesc(createFragment((fragment) => {
-       fragment.append(
-         "Remove text formatting like ",
-         createEl("b", { text: "bold" }), ", ",
-         createEl("i", { text: "italic" }), ", ",
-         createEl("s", { text: "strikethrough" }), " etc."
-       );
-     }))
-     .addToggle((toggle) => {
+      .setName("Remove text formatting")
+      .setDesc(createFragment((fragment) => {
+        fragment.append(
+          "Remove text formatting like ",
+          createEl("b", { text: "bold" }), ", ",
+          createEl("i", { text: "italic" }), ", ",
+          createEl("s", { text: "strikethrough" }), " etc."
+        );
+      }))
+      .addToggle((toggle) => {
         toggle.setValue(this.plugin.settings.remove_formatting)
-         .onChange(async (value) => {
+          .onChange(async (value) => {
             this.plugin.settings.remove_formatting = value;
             await this.plugin.saveSettings();
           });
@@ -239,11 +241,35 @@ export class TGInboxSettingTab extends PluginSettingTab {
     }
 
 
+    if (hasSyncPlugin(this.app)) {
+      new Setting(containerEl)
+        .setName("Run after sync on startup")
+        .setDesc("Run the bot after Obsidian sync is complete on startup.")
+        .addToggle((toggle) => {
+          toggle.setValue(this.plugin.settings.run_after_sync)
+        .onChange(async (value) => {
+          this.plugin.settings.run_after_sync = value;
+          await this.plugin.saveSettings();
+        });
+        });
+    }
+    const { obsidianSync, remotelySave, remotelySync } = getSyncStatus(this.app);
+    const syncStatusDiv = containerEl.createDiv({ cls: "tg-inbox-sync-status" });
+    if (obsidianSync) {
+      syncStatusDiv.createDiv({ text: "Obsidian Sync: enabled" });
+    }
+    if (remotelySave) {
+      syncStatusDiv.createDiv({ text: "Remotely Save: enabled" });
+    }
+    if (remotelySync) {
+      syncStatusDiv.createDiv({ text: "Remotely Sync: enabled" });
+    }
   }
 
   hide() {
     window.clearInterval(this.updateId);
   }
+
   async updateStatus() {
     try {
       const me = await this.plugin.getBotInfo();

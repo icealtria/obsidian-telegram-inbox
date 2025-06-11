@@ -2,6 +2,7 @@ import { Notice, Plugin } from "obsidian";
 import { TelegramBot } from "./bot";
 import type { TGInboxSettings } from "./settings";
 import { TGInboxSettingTab } from "./settings";
+import { runAfterSync } from "./utils/sync";
 
 const DEFAULT_SETTINGS: TGInboxSettings = {
   token: "",
@@ -16,6 +17,7 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   disable_auto_reception: false,
   reverse_order: false,
   remove_formatting: false,
+  run_after_sync: true,
 };
 
 export default class TGInbox extends Plugin {
@@ -28,18 +30,22 @@ export default class TGInbox extends Plugin {
 
   async onload() {
     this.addSettingTab(new TGInboxSettingTab(this.app, this));
-
     this.addCommands();
-
     await this.loadSettings();
 
     if (this.settings.disable_auto_reception) {
-      this.addRibbonIcon('send', 'Telegram Inbox: Get Updates', () => {
+      this.addRibbonIcon("send", "Telegram Inbox: Get Updates", () => {
         this.bot?.getUpdates();
       });
     }
 
-    this.launchBot();
+    if (this.settings.run_after_sync) {
+      runAfterSync.call(this, () => {
+        this.initBot();
+      });
+    } else {
+      this.initBot();
+    }
   }
 
   addCommands() {
@@ -82,7 +88,7 @@ export default class TGInbox extends Plugin {
     await this.saveData(this.settings);
   }
 
-  async launchBot() {
+  async initBot() {
     try {
       if (!this.settings.token) {
         new Notice("Telegram bot token not set");
