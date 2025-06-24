@@ -21,3 +21,7 @@ If your plugin does not need CSS, delete this file.
 .tg-inbox-sync-status {
   font-size: 0.8em;
 }
+
+.tg-inbox-setting-disabled>.setting-item-info * {
+  color: var(--text-faint);
+}

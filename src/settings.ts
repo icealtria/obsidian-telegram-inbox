@@ -191,10 +191,12 @@ export class TGInboxSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.remove_formatting = value;
             await this.plugin.saveSettings();
+            this.display();
           });
       })
 
-    new Setting(containerEl)
+    const markdownEscaperDisabled = this.plugin.settings.remove_formatting;
+    const markdownEscaper = new Setting(containerEl)
       .setName("Markdown escaper")
       .setDesc("Use Markdown escaper for text. For example: '[link](https://example.com)' will display as '[link](https://example.com)' instead of a link.")
       .addToggle((toggle) => {
@@ -205,6 +207,9 @@ export class TGInboxSettingTab extends PluginSettingTab {
           });
       });
 
+    if (markdownEscaperDisabled) {
+      markdownEscaper.setClass("tg-inbox-setting-disabled");
+    }
 
     new Setting(containerEl)
       .setName("Save to custom path")
@@ -241,18 +246,24 @@ export class TGInboxSettingTab extends PluginSettingTab {
     }
 
 
-    if (hasSyncPlugin(this.app)) {
-      new Setting(containerEl)
-        .setName("Run after sync on startup")
-        .setDesc("Run the bot after Obsidian sync is complete on startup.")
-        .addToggle((toggle) => {
-          toggle.setValue(this.plugin.settings.run_after_sync)
-        .onChange(async (value) => {
-          this.plugin.settings.run_after_sync = value;
-          await this.plugin.saveSettings();
-        });
-        });
+    const runAfterSyncSetting = new Setting(containerEl)
+      .setName("Run after vault synced")
+      .setDesc("Run the bot after Obsidian sync is complete on startup.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.run_after_sync)
+          .onChange(async (value) => {
+            this.plugin.settings.run_after_sync = value;
+            await this.plugin.saveSettings();
+          });
+      });
+
+
+    if (!hasSyncPlugin(this.app)) {
+      runAfterSyncSetting.setDesc("This setting requires Obsidian Sync or Remotely plugin to be installed.");
+      runAfterSyncSetting.setDisabled(true);
+      runAfterSyncSetting.setClass("tg-inbox-setting-disabled");
     }
+
     const { obsidianSync, remotelySave, remotelySync } = getSyncStatus(this.app);
     const syncStatusDiv = containerEl.createDiv({ cls: "tg-inbox-sync-status" });
     if (obsidianSync) {
