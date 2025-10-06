@@ -1,5 +1,5 @@
 import { escapers, serialiseWith } from "@telegraf/entity";
-import type { Serialiser, Node, Message } from "@telegraf/entity/types/types";
+import type { Serialiser, Node, Message, Escaper } from "@telegraf/entity/types/types";
 import type { TGInboxSettings } from "src/settings";
 import type { MsgChannel, MsgNonChannel } from "src/type";
 
@@ -44,8 +44,10 @@ const markdownSerialiser: Serialiser = (match: string, node?: Node) => {
   }
 };
 
+const noEscaper: Escaper = s => s;
+
 export function toMarkdownV2(msg: MsgNonChannel | MsgChannel, settings: TGInboxSettings): string {
   if (settings.remove_formatting) return msg.text ?? msg.caption ?? "";
-  const selectedEscaper = settings.markdown_escaper ? escapers.MarkdownV2 : escapers.HTML;
+  const selectedEscaper = settings.markdown_escaper ? escapers.MarkdownV2 : noEscaper;
   return serialiseWith(markdownSerialiser, selectedEscaper)(msg as Message);
 }
