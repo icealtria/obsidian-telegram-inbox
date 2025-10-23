@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: TGInboxSettings = {
   reverse_order: false,
   remove_formatting: false,
   run_after_sync: true,
+  daily_note_time_cutoff: "00:00",
 };
 
 export default class TGInbox extends Plugin {
