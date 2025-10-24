@@ -48,7 +48,7 @@ export async function getDiaryWithTimeCutoff(settings: TGInboxSettings, messageD
   }
 }
 
-function getAdjustedDateForTimeCutoff(messageDate: moment.Moment, timeCutoff: string): moment.Moment {
+export function getAdjustedDateForTimeCutoff(messageDate: moment.Moment, timeCutoff: string): moment.Moment {
   // Parse the time cutoff (format: "HH:MM")
   const [cutoffHour, cutoffMinute] = timeCutoff.split(':').map(Number);
   

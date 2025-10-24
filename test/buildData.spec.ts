@@ -4,6 +4,7 @@ import { msg, msgHidden, msgFowardUser, msgCh, channel_post_fw, channel_post } f
 import type { TGInboxSettings } from "src/settings";
 import { MsgChannel, MsgNonChannel } from "src/type";
 
+jest.mock("obsidian");
 
 const settings: TGInboxSettings = {
     token: "",
@@ -18,6 +19,8 @@ const settings: TGInboxSettings = {
     disable_auto_reception: true,
     reverse_order: false,
     remove_formatting: false,
+    daily_note_time_cutoff: "00:00",
+    run_after_sync: false,
 }
 
 

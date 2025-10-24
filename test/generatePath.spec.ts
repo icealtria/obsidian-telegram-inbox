@@ -15,6 +15,8 @@ const settings: TGInboxSettings = {
     disable_auto_reception: true,
     reverse_order: false,
     remove_formatting: false,
+    daily_note_time_cutoff: "00:00",
+    run_after_sync: false
 }
 
 describe('generatePath', () => {
