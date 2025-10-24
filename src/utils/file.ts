@@ -1,9 +1,10 @@
 import type { File } from "grammy/types";
 import type { TGInboxSettings } from "src/settings";
-import { getTodayDiary } from "./diary";
+import { getTodayDiary, getDiaryWithTimeCutoff } from "./diary";
 import { type TFile, normalizePath, type Vault } from "obsidian";
 import { generatePath } from "./template";
 import type { MessageUpdate } from "src/type";
+import { moment } from "obsidian";
 
 export function getExt(path: string) {
     return path.split(".").pop();
@@ -38,6 +39,13 @@ export async function getSavePath(
             }
             return file;
         }
+        
+        // Use time cutoff logic for daily notes
+        if (msg) {
+            const messageDate = moment(msg.date * 1000);
+            return await getDiaryWithTimeCutoff(settings, messageDate);
+        }
+        
         return getTodayDiary();
     } catch (error) {
         console.error(`Error in getSavedPath: ${error}`);

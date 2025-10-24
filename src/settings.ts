@@ -17,6 +17,7 @@ export interface TGInboxSettings {
   reverse_order: boolean;
   remove_formatting: boolean;
   run_after_sync: boolean;
+  daily_note_time_cutoff: string; // Format: "HH:MM" (24-hour format)
 }
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -243,6 +244,18 @@ export class TGInboxSettingTab extends PluginSettingTab {
               this.plugin.saveSettings();
             })
         })
+    } else {
+      // Daily note time cutoff setting
+      const timeCutoffSetting = new Setting(containerEl)
+        .setName("Daily note time cutoff")
+        .setDesc("Set the time cutoff for daily notes. Messages received before this time will be saved to the previous day's note. Format: HH:MM (24-hour)")
+        .addText((text) => {
+          text.setPlaceholder("00:00")
+            .setValue(this.plugin.settings.daily_note_time_cutoff)
+            .onChange((value) => {
+              this.validateAndSetTimeCutoff(value, text.inputEl, timeCutoffSetting);
+            });
+        });
     }
 
 
@@ -291,6 +304,44 @@ export class TGInboxSettingTab extends PluginSettingTab {
       }
     } catch {
       this.statusEl.setText("❌ Bot not connected");
+    }
+  }
+
+  private validateAndSetTimeCutoff(value: string, inputEl: HTMLInputElement, setting: Setting) {
+    const timeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/;
+    const isValid = timeRegex.test(value);
+    
+    if (isValid) {
+      // Valid time format
+      inputEl.classList.remove("tg-inbox-time-input-error");
+      this.removeErrorText(setting);
+      this.plugin.settings.daily_note_time_cutoff = value;
+      this.plugin.saveSettings();
+    } else {
+      // Invalid time format
+      inputEl.classList.add("tg-inbox-time-input-error");
+      this.showErrorText(setting, "Invalid time format. Please use HH:MM format (00:00-23:59)");
+    }
+  }
+
+  private showErrorText(setting: Setting, message: string) {
+    // Remove existing error text
+    this.removeErrorText(setting);
+    
+    // Add error text
+    const errorDiv = setting.descEl.createDiv({
+      cls: "tg-inbox-error-text",
+      text: message
+    });
+    errorDiv.style.color = "#ff6b6b";
+    errorDiv.style.fontSize = "0.8em";
+    errorDiv.style.marginTop = "4px";
+  }
+
+  private removeErrorText(setting: Setting) {
+    const existingError = setting.descEl.querySelector(".tg-inbox-error-text");
+    if (existingError) {
+      existingError.remove();
     }
   }
 }

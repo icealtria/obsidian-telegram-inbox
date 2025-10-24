@@ -25,3 +25,14 @@ If your plugin does not need CSS, delete this file.
 .tg-inbox-setting-disabled>.setting-item-info * {
   color: var(--text-faint);
 }
+
+.tg-inbox-error-text {
+  color: #ff6b6b;
+  font-size: 0.8em;
+  margin-top: 4px;
+}
+
+.tg-inbox-time-input-error {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 1px #ff6b6b !important;
+}
