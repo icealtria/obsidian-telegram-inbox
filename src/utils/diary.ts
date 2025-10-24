@@ -14,7 +14,7 @@ export async function getDiaryWithTimeCutoff(settings: TGInboxSettings, messageD
   try {
     const date = messageDate || moment();
     const adjustedDate = getAdjustedDateForTimeCutoff(date, settings.daily_note_time_cutoff);
-    
+
     const dailyNotes = getAllDailyNotes();
     let dailyNote = getDailyNote(adjustedDate, dailyNotes);
 
@@ -33,16 +33,16 @@ export async function getDiaryWithTimeCutoff(settings: TGInboxSettings, messageD
 export function getAdjustedDateForTimeCutoff(messageDate: moment.Moment, timeCutoff: string): moment.Moment {
   // Parse the time cutoff (format: "HH:MM")
   const [cutoffHour, cutoffMinute] = timeCutoff.split(':').map(Number);
-  
+
   // Get the message time (only time part)
   const messageHour = messageDate.hour();
   const messageMinute = messageDate.minute();
-  
+
   // If message time is before the cutoff time, use previous day
   if (messageHour < cutoffHour || (messageHour === cutoffHour && messageMinute < cutoffMinute)) {
     return moment(messageDate).subtract(1, 'day');
   }
-  
+
   // Otherwise, use the same day
   return moment(messageDate);
 }

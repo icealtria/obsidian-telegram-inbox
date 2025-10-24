@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { App, Notice, type Plugin } from "obsidian";
 
 function waitForObsidianSync(sync: any, cb: () => void) {

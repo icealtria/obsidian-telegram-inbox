@@ -1,5 +1,5 @@
 import { TGInboxSettings } from "src/settings";
-import { generatePath, PathData } from "../src/utils/template";
+import { generatePath } from "../src/utils/template";
 import { msgFowardUser, channel_post_fw, channel_post } from "./msgs";
 
 const settings: TGInboxSettings = {

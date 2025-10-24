@@ -1,4 +1,4 @@
-import { MessageUpdate, MsgChannel, MsgNonChannel } from "../src/type";
+import { MessageUpdate, MsgChannel } from "../src/type";
 
 export const msgHidden: MessageUpdate = {
     "message_id": 1234,

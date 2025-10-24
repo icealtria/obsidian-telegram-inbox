@@ -1,4 +1,3 @@
-import { TGInboxSettings } from "src/settings";
 import { type PathData, buildPathData } from "../src/utils/template";
 import { msg, msgFowardUser, channel_post, channel_post_fw } from "./msgs";
 
