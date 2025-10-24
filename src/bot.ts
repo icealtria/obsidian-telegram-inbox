@@ -93,7 +93,7 @@ export class TelegramBot {
 
     this.bot.command("task", async (ctx) => {
       const task = `- [ ] ${ctx.match}`;
-      this.insertMessageToVault(task);
+      this.insertMessageToVault(task, ctx.msg);
       ctx.react("❤");
     });
   }
@@ -101,7 +101,7 @@ export class TelegramBot {
   private setupMessageHandlers(settings: TGInboxSettings) {
     this.bot.on(["message:text", "channel_post:text"], async (ctx) => {
       const content = generateContentFromTemplate(ctx.msg, settings)
-      await this.insertMessageToVault(content, { msg: ctx.msg })
+      await this.insertMessageToVault(content, ctx.msg)
         .then(async _ => {
           try {
             await ctx.react("❤");
@@ -139,7 +139,7 @@ export class TelegramBot {
         return;
       }
 
-      await this.insertMessageToVault(content, { msg: ctx.msg })
+      await this.insertMessageToVault(content, ctx.msg)
         .then(async _ => {
           try {
             await ctx.react("❤");
@@ -161,12 +161,10 @@ export class TelegramBot {
     return `${dateStr}-${message_id}.${extension}`;
   }
 
-  private async insertMessageToVault(content: string, options?: { msg: MessageUpdate }): Promise<void> {
+  private async insertMessageToVault(content: string, msg: MessageUpdate): Promise<void> {
     const release = await this.mutex.acquire();
     try {
-      const savedPath = options?.msg
-        ? await getSavePath(this.vault, this.settings, options.msg)
-        : await getSavePath(this.vault, this.settings);
+      const savedPath = await getSavePath(this.vault, this.settings, msg)
 
       if (this.settings.reverse_order) {
         await insertMessageAtTop(this.vault, content, savedPath);

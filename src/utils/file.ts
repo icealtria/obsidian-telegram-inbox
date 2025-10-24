@@ -1,6 +1,6 @@
 import type { File } from "grammy/types";
 import type { TGInboxSettings } from "src/settings";
-import { getTodayDiary, getDiaryWithTimeCutoff } from "./diary";
+import { getDiaryWithTimeCutoff } from "./diary";
 import { type TFile, normalizePath, type Vault } from "obsidian";
 import { generatePath } from "./template";
 import type { MessageUpdate } from "src/type";
@@ -19,14 +19,14 @@ export function getFileUrl(file: File, token: string) {
 export async function getSavePath(
     vault: Vault,
     settings: TGInboxSettings,
-    msg?: MessageUpdate
+    msg: MessageUpdate,
 ): Promise<TFile> {
     try {
-        if (settings.is_custom_file && msg && settings.custom_file_path) {
+        if (settings.is_custom_file && settings.custom_file_path && !isTask(msg)) {
             let normalizedPath = settings.custom_file_path
                 ? normalizePath(generatePath(msg, settings))
                 : normalizePath('Telegram-Inbox.md');
-        
+
             if (!normalizedPath.endsWith('.md')) {
                 normalizedPath += '.md';
             }
@@ -39,14 +39,11 @@ export async function getSavePath(
             }
             return file;
         }
-        
+
         // Use time cutoff logic for daily notes
-        if (msg) {
-            const messageDate = moment(msg.date * 1000);
-            return await getDiaryWithTimeCutoff(settings, messageDate);
-        }
-        
-        return getTodayDiary();
+        const messageDate = moment(msg.date * 1000);
+        return await getDiaryWithTimeCutoff(settings, messageDate);
+
     } catch (error) {
         console.error(`Error in getSavedPath: ${error}`);
         throw error;
@@ -89,4 +86,9 @@ function getDirPath(filePath: string): string {
     const lastSlashIndex = filePath.lastIndexOf('/');
     if (lastSlashIndex === -1) return '';
     return filePath.substring(0, lastSlashIndex);
+}
+
+function isTask(msg: MessageUpdate): boolean {
+    const text = msg.text || '';
+    return text.trim().toLowerCase().startsWith('/task');
 }

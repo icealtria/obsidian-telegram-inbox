@@ -10,24 +10,6 @@ async function createDiary(date: moment.Moment) {
   return await createDailyNote(date);
 }
 
-export async function getTodayDiary() {
-  try {
-    const date = moment();
-    const dailyNotes = getAllDailyNotes();
-    let dailyNote = getDailyNote(date, dailyNotes);
-
-    if (!dailyNote) {
-      console.log('Daily note not found, creating new one');
-      dailyNote = await createDiary(date);
-    }
-
-    return dailyNote;
-  } catch (error) {
-    console.error(`Error retrieving or creating today's diary: ${error}`);
-    throw error;
-  }
-}
-
 export async function getDiaryWithTimeCutoff(settings: TGInboxSettings, messageDate?: moment.Moment) {
   try {
     const date = messageDate || moment();
