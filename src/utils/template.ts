@@ -1,7 +1,6 @@
 import { toMarkdownV2 } from "./markdown";
 import type { User } from "grammy/types";
 import type { MessageUpdate, MsgChannel, MsgNonChannel } from '../type';
-// import * as moment from "moment";
 import { moment } from "obsidian";
 import * as Mustache from 'mustache';
 import type { TGInboxSettings } from "src/settings";
