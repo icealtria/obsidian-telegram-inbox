@@ -2,7 +2,6 @@ import { type App, PluginSettingTab, Setting } from "obsidian";
 import type TGInbox from "./main";
 import * as Mustache from 'mustache';
 import { getSyncStatus, hasSyncPlugin } from "./utils/sync";
-import type { TGInboxSettings } from "./settings/types";
 
 export class TGInboxSettingTab extends PluginSettingTab {
   plugin: TGInbox;

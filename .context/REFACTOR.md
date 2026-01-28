@@ -5,7 +5,6 @@
 - [ ] Code structure optimization
 - [ ] Extensibility improvements
 - [ ] Maintainability improvements
-- [ ] Performance optimization
 
 ## Modules
 - [ ] `src/main.ts`
@@ -37,4 +36,5 @@
    - Ensure `async-mutex` doesn't cause unnecessary delays for independent operations if multiple bots/accounts were ever supported (not currently a concern but good to keep in mind).
 
 ## Completed
-- (None)
+
+- [x] Separate `TGInboxSettings` interface and `DEFAULT_SETTINGS` from UI code.
