@@ -1,6 +1,6 @@
 import { escapers, serialiseWith } from "@telegraf/entity";
 import type { Serialiser, Node, Message, Escaper } from "@telegraf/entity/types/types";
-import type { TGInboxSettings } from "src/settings";
+import type { TGInboxSettings } from "src/settings/types";
 import type { MsgChannel, MsgNonChannel } from "src/type";
 
 

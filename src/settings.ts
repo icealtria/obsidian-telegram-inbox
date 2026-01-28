@@ -2,23 +2,7 @@ import { type App, PluginSettingTab, Setting } from "obsidian";
 import type TGInbox from "./main";
 import * as Mustache from 'mustache';
 import { getSyncStatus, hasSyncPlugin } from "./utils/sync";
-
-export interface TGInboxSettings {
-  token: string;
-  marker: string;
-  allow_users: string[];
-  download_dir: string;
-  download_media: boolean;
-  message_template: string;
-  markdown_escaper: boolean;
-  is_custom_file: boolean;
-  custom_file_path: string;
-  disable_auto_reception: boolean;
-  reverse_order: boolean;
-  remove_formatting: boolean;
-  run_after_sync: boolean;
-  daily_note_time_cutoff: string; // Format: "HH:MM" (24-hour format)
-}
+import type { TGInboxSettings } from "./settings/types";
 
 export class TGInboxSettingTab extends PluginSettingTab {
   plugin: TGInbox;

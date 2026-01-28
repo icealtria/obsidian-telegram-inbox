@@ -1,25 +1,8 @@
 import { Notice, Plugin } from "obsidian";
 import { TelegramBot } from "./bot";
-import type { TGInboxSettings } from "./settings";
+import { type TGInboxSettings, DEFAULT_SETTINGS } from "./settings/types";
 import { TGInboxSettingTab } from "./settings";
 import { runAfterSync } from "./utils/sync";
-
-const DEFAULT_SETTINGS: TGInboxSettings = {
-  token: "",
-  marker: "#inbox",
-  allow_users: [],
-  download_dir: "/assets",
-  download_media: false,
-  markdown_escaper: false,
-  message_template: "{{{text}}}",
-  is_custom_file: false,
-  custom_file_path: "Telegram-Inbox.md",
-  disable_auto_reception: false,
-  reverse_order: false,
-  remove_formatting: false,
-  run_after_sync: true,
-  daily_note_time_cutoff: "00:00",
-};
 
 export default class TGInbox extends Plugin {
   settings: TGInboxSettings;

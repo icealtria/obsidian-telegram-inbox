@@ -4,7 +4,7 @@ import {
   getAllDailyNotes,
   getDailyNote,
 } from "obsidian-daily-notes-interface";
-import type { TGInboxSettings } from "../settings";
+import type { TGInboxSettings } from "../settings/types";
 
 async function createDiary(date: moment.Moment) {
   return await createDailyNote(date);

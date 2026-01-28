@@ -3,7 +3,7 @@ import type { User } from "grammy/types";
 import type { MessageUpdate } from '../type';
 import { moment } from "obsidian";
 import * as Mustache from 'mustache';
-import type { TGInboxSettings } from "src/settings";
+import type { TGInboxSettings } from "src/settings/types";
 
 export interface MessageData {
     message_id: number;

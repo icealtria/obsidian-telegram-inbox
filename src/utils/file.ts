@@ -1,5 +1,5 @@
 import type { File } from "grammy/types";
-import type { TGInboxSettings } from "src/settings";
+import type { TGInboxSettings } from "src/settings/types";
 import { getDiaryWithTimeCutoff } from "./diary";
 import { type TFile, normalizePath, type Vault } from "obsidian";
 import { generatePath } from "./template";

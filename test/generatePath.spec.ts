@@ -1,4 +1,4 @@
-import { TGInboxSettings } from "src/settings";
+import { TGInboxSettings } from "src/settings/types";
 import { generatePath } from "../src/utils/template";
 import { msgFowardUser, channel_post_fw, channel_post } from "./msgs";
 

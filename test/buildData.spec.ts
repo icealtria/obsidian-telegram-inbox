@@ -1,7 +1,7 @@
 import { type MessageData, buildMsgData } from "../src/utils/template";
 import { describe, expect, test } from "@jest/globals"
 import { msg, msgHidden, msgFowardUser, msgCh, channel_post_fw, channel_post } from "./msgs";
-import type { TGInboxSettings } from "src/settings";
+import type { TGInboxSettings } from "src/settings/types";
 
 jest.mock("obsidian");
 
