@@ -10,6 +10,10 @@ export class VaultWriter {
 
   constructor(private vault: Vault, private settings: TGInboxSettings) {}
 
+  getVault(): Vault {
+    return this.vault;
+  }
+
   async insertMessageToVault(content: string, msg: MessageUpdate): Promise<void> {
     const release = await this.mutex.acquire();
     try {

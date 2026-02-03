@@ -6,89 +6,92 @@ import { generatePath } from "./template";
 import type { MessageUpdate } from "src/type";
 import { moment } from "obsidian";
 
-export function getExt(path: string) {
+const TG_API_FILE_URL = "https://api.telegram.org/file/bot";
+const DEFAULT_INBOX_PATH = "Telegram-Inbox.md";
+const TASK_COMMAND_PREFIX = "/task";
+
+export function getExt(path: string): string | undefined {
     return path.split(".").pop();
 }
 
-export function getFileUrl(file: File, token: string) {
-    const TG_API = "https://api.telegram.org/file/bot";
-    return `${TG_API}${token}/${file.file_path}`;
+export function getFileUrl(file: File, token: string): string {
+    return `${TG_API_FILE_URL}${token}/${file.file_path}`;
 }
-
 
 export async function getSavePath(
     vault: Vault,
     settings: TGInboxSettings,
     msg: MessageUpdate,
 ): Promise<TFile> {
-    try {
-        if (settings.is_custom_file && settings.custom_file_path && !isTask(msg)) {
-            let normalizedPath = settings.custom_file_path
-                ? normalizePath(generatePath(msg, settings))
-                : normalizePath('Telegram-Inbox.md');
-
-            if (!normalizedPath.endsWith('.md')) {
-                normalizedPath += '.md';
-            }
-
-            const file = vault.getFileByPath(normalizedPath);
-
-            if (!file) {
-                console.debug(`File not found. Creating new file at: ${normalizedPath}`);
-                return await createTargetFile(vault, normalizedPath);
-            }
-            return file;
-        }
-
-        // Use time cutoff logic for daily notes
-        const messageDate = moment(msg.date * 1000);
-        return await getDiaryWithTimeCutoff(settings, messageDate);
-
-    } catch (error) {
-        console.error(`Error in getSavedPath: ${error}`);
-        throw error;
+    if (settings.is_custom_file && settings.custom_file_path && !isTask(msg)) {
+        return await getCustomFile(vault, settings, msg);
     }
+
+    return await getDailyNoteFile(settings, msg);
+}
+
+async function getCustomFile(
+    vault: Vault,
+    settings: TGInboxSettings,
+    msg: MessageUpdate
+): Promise<TFile> {
+    const pathTemplate = settings.custom_file_path || DEFAULT_INBOX_PATH;
+    let normalizedPath = normalizePath(generatePath(msg, settings));
+
+    if (!normalizedPath.endsWith(".md")) {
+        normalizedPath += ".md";
+    }
+
+    const file = vault.getFileByPath(normalizedPath);
+
+    if (file) {
+        return file;
+    }
+
+    console.debug(`File not found. Creating new file at: ${normalizedPath}`);
+    return await createTargetFile(vault, normalizedPath);
+}
+
+async function getDailyNoteFile(
+    settings: TGInboxSettings,
+    msg: MessageUpdate
+): Promise<TFile> {
+    const messageDate = moment(msg.date * 1000);
+    return await getDiaryWithTimeCutoff(settings, messageDate);
 }
 
 async function createTargetFile(vault: Vault, filePath: string): Promise<TFile> {
-    try {
-        console.debug(`Creating target file: ${filePath}`);
-        const dirPath = getDirPath(filePath);
-        if (dirPath) {
-            console.debug(`Directory path extracted: ${dirPath}`);
-            await ensureDirExists(vault, dirPath);
-        }
-        const file = await vault.create(filePath, '');
-        console.log(`File created: ${filePath}`);
-        return file;
-    } catch (error) {
-        console.error(`Error creating target file: ${error}`);
-        throw error;
+    console.debug(`Creating target file: ${filePath}`);
+    
+    const dirPath = getDirPath(filePath);
+    if (dirPath) {
+        console.debug(`Directory path extracted: ${dirPath}`);
+        await ensureDirExists(vault, dirPath);
     }
+    
+    const file = await vault.create(filePath, "");
+    console.log(`File created: ${filePath}`);
+    return file;
 }
 
 async function ensureDirExists(vault: Vault, dirPath: string): Promise<void> {
-    try {
-        const dir = vault.getAbstractFileByPath(dirPath);
-        if (!dir) {
-            await vault.createFolder(dirPath);
-            console.log(`Folder created: ${dirPath}`);
-        } else {
-            console.log(`Folder already exists: ${dirPath}`);
-        }
-    } catch (error) {
-        console.error(`Error ensuring directory exists: ${error}`);
-        throw error;
+    const dir = vault.getAbstractFileByPath(dirPath);
+    
+    if (dir) {
+        console.debug(`Folder already exists: ${dirPath}`);
+        return;
     }
+    
+    await vault.createFolder(dirPath);
+    console.log(`Folder created: ${dirPath}`);
 }
 
 function getDirPath(filePath: string): string {
-    const lastSlashIndex = filePath.lastIndexOf('/');
-    if (lastSlashIndex === -1) return '';
-    return filePath.substring(0, lastSlashIndex);
+    const lastSlashIndex = filePath.lastIndexOf("/");
+    return lastSlashIndex === -1 ? "" : filePath.substring(0, lastSlashIndex);
 }
 
 function isTask(msg: MessageUpdate): boolean {
-    const text = msg.text || '';
-    return text.trim().toLowerCase().startsWith('/task');
+    const text = msg.text || "";
+    return text.trim().toLowerCase().startsWith(TASK_COMMAND_PREFIX);
 }
