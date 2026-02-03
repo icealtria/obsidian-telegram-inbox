@@ -1,34 +1,35 @@
 import type { TFile, Vault } from "obsidian";
 
-export async function insertMessage(vault: Vault, message: string, tFile: TFile) {
-  try {
-    await vault.process(tFile, (data) => {
-      const updatedContent = data.trim() === ""
-        ? message
-        : data.endsWith("\n")
-          ? `${data}${message}`
-          : `${data}\n${message}`;
-      return updatedContent;
-    });
-  } catch (error) {
-    throw new Error(`Error inserting message. ${error}`);
+const FRONTMATTER_REGEX = /^---\n([\s\S]*?\n)---(\n|$)/;
+
+function appendMessage(existingContent: string, message: string): string {
+  const trimmed = existingContent.trim();
+  
+  if (trimmed === "") {
+    return message;
   }
+  
+  if (existingContent.endsWith("\n")) {
+    return `${existingContent}${message}`;
+  }
+  
+  return `${existingContent}\n${message}`;
 }
 
-export async function insertMessageAtTop(vault: Vault, message: string, tFile: TFile) {
-  try {
-    await vault.process(tFile, (data) => {
-      const frontmatterMatch = data.match(/^---\n([\s\S]*?\n)---(\n|$)/);
+export async function insertMessage(vault: Vault, message: string, tFile: TFile): Promise<void> {
+  await vault.process(tFile, (data) => appendMessage(data, message));
+}
 
-      if (frontmatterMatch) {
-        const frontmatter = frontmatterMatch[0];
-        const contentAfterFrontmatter = data.slice(frontmatter.length);
-        return `${frontmatter}${message}\n${contentAfterFrontmatter}`;
-      } else {
-        return `${message}\n${data}`;
-      }
-    });
-  } catch (error) {
-    throw new Error(`Error inserting message. ${error}`);
-  }
+export async function insertMessageAtTop(vault: Vault, message: string, tFile: TFile): Promise<void> {
+  await vault.process(tFile, (data) => {
+    const frontmatterMatch = data.match(FRONTMATTER_REGEX);
+
+    if (frontmatterMatch) {
+      const frontmatter = frontmatterMatch[0];
+      const contentAfterFrontmatter = data.slice(frontmatter.length);
+      return `${frontmatter}${message}\n${contentAfterFrontmatter}`;
+    }
+    
+    return `${message}\n${data}`;
+  });
 }

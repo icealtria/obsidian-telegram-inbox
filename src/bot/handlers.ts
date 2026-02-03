@@ -1,4 +1,4 @@
-import { type Bot } from "grammy";
+import { type Bot, type Context } from "grammy";
 import type { TGInboxSettings } from "../settings/types";
 import { generateContentFromTemplate } from "../utils/template";
 import { downloadAndSaveFile } from "../utils/download";
@@ -6,6 +6,19 @@ import { getFileUrl } from "../utils/file";
 import type { VaultWriter } from "./vault-writer";
 import { generateFilename } from "./utils";
 import type { MessageUpdate } from "../type";
+
+async function sendReaction(ctx: Context): Promise<void> {
+  try {
+    await ctx.react("❤");
+  } catch (err) {
+    console.error("Failed to set reaction:", err);
+  }
+}
+
+function handleVaultError(ctx: Context, err: Error, context: string): void {
+  console.error(`Failed to ${context}. Error: ${err.message}`, err);
+  ctx.reply(`Failed to ${context}. Error: ${err.message}`);
+}
 
 export function setupCommands(bot: Bot, vaultWriter: VaultWriter) {
   bot.command("start", (ctx) => {
@@ -16,11 +29,11 @@ export function setupCommands(bot: Bot, vaultWriter: VaultWriter) {
 
   bot.command("task", async (ctx) => {
     const task = `- [ ] ${ctx.match}`;
-    await vaultWriter.insertMessageToVault(task, ctx.msg as MessageUpdate);
     try {
-        await ctx.react("❤");
+      await vaultWriter.insertMessageToVault(task, ctx.msg as MessageUpdate);
+      await sendReaction(ctx);
     } catch (err) {
-        console.error("Failed to set reaction", err);
+      handleVaultError(ctx, err as Error, "insert task");
     }
   });
 }
@@ -28,19 +41,14 @@ export function setupCommands(bot: Bot, vaultWriter: VaultWriter) {
 export function setupMessageHandlers(bot: Bot, settings: TGInboxSettings, vaultWriter: VaultWriter) {
   bot.on(["message:text", "channel_post:text"], async (ctx) => {
     const msg = ctx.msg as MessageUpdate;
-    const content = generateContentFromTemplate(msg, settings)
-    await vaultWriter.insertMessageToVault(content, msg)
-      .then(async _ => {
-        try {
-          await ctx.react("❤");
-        } catch (reactionErr) {
-          console.error("Failed to set reaction");
-        }
-      })
-      .catch((err: Error) => {
-        console.error(`Failed to insert text message to vault. Error: ${err.message}`, err);
-        ctx.reply(`Failed to insert text message to vault. Error: ${err.message}`);
-      });
+    const content = generateContentFromTemplate(msg, settings);
+    
+    try {
+      await vaultWriter.insertMessageToVault(content, msg);
+      await sendReaction(ctx);
+    } catch (err) {
+      handleVaultError(ctx, err as Error, "insert text message to vault");
+    }
   });
 
   bot.on(["message:media", "channel_post:media"], async (ctx) => {
@@ -53,7 +61,12 @@ export function setupMessageHandlers(bot: Bot, settings: TGInboxSettings, vaultW
       const url = getFileUrl(file, bot.token);
 
       console.debug(`Attempting to download media: ${filename_ext} from ${url}`);
-      const downloadResult = await downloadAndSaveFile(url, filename_ext, settings.download_dir);
+      const downloadResult = await downloadAndSaveFile(
+        vaultWriter.getVault(),
+        url,
+        filename_ext,
+        settings.download_dir
+      );
 
       if (downloadResult) {
         content = `![[${filename_ext}]]\n${content}`;
@@ -68,17 +81,11 @@ export function setupMessageHandlers(bot: Bot, settings: TGInboxSettings, vaultW
       return;
     }
 
-    await vaultWriter.insertMessageToVault(content, msg)
-      .then(async _ => {
-        try {
-          await ctx.react("❤");
-        } catch (reactionErr) {
-          console.error("Failed to set reaction");
-        }
-      })
-      .catch((err: Error) => {
-        console.error(`Failed to insert media message to vault. Error: ${err.message}`, err);
-        ctx.reply(`Failed to insert media message to vault. Error: ${err.message}`);
-      });
+    try {
+      await vaultWriter.insertMessageToVault(content, msg);
+      await sendReaction(ctx);
+    } catch (err) {
+      handleVaultError(ctx, err as Error, "insert media message to vault");
+    }
   });
 }
