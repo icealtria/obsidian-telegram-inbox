@@ -2,7 +2,7 @@ import type { TFile, Vault } from "obsidian";
 
 const FRONTMATTER_REGEX = /^---\n([\s\S]*?\n)---(\n|$)/;
 
-function appendMessage(existingContent: string, message: string): string {
+export function appendMessage(existingContent: string, message: string): string {
   const trimmed = existingContent.trim();
   
   if (trimmed === "") {

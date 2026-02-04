@@ -91,7 +91,8 @@ function getDirPath(filePath: string): string {
     return lastSlashIndex === -1 ? "" : filePath.substring(0, lastSlashIndex);
 }
 
-function isTask(msg: MessageUpdate): boolean {
+export function isTask(msg: MessageUpdate): boolean {
     const text = msg.text || "";
-    return text.trim().toLowerCase().startsWith(TASK_COMMAND_PREFIX);
+    const trimmed = text.trim().toLowerCase();
+    return trimmed === TASK_COMMAND_PREFIX || trimmed.startsWith(TASK_COMMAND_PREFIX + " ");
 }
