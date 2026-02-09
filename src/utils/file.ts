@@ -7,7 +7,6 @@ import type { MessageUpdate } from "src/type";
 import { moment } from "obsidian";
 
 const TG_API_FILE_URL = "https://api.telegram.org/file/bot";
-const DEFAULT_INBOX_PATH = "Telegram-Inbox.md";
 const TASK_COMMAND_PREFIX = "/task";
 
 export function getExt(path: string): string | undefined {
@@ -35,7 +34,6 @@ async function getCustomFile(
     settings: TGInboxSettings,
     msg: MessageUpdate
 ): Promise<TFile> {
-    const pathTemplate = settings.custom_file_path || DEFAULT_INBOX_PATH;
     let normalizedPath = normalizePath(generatePath(msg, settings));
 
     if (!normalizedPath.endsWith(".md")) {
@@ -62,13 +60,13 @@ async function getDailyNoteFile(
 
 async function createTargetFile(vault: Vault, filePath: string): Promise<TFile> {
     console.debug(`Creating target file: ${filePath}`);
-    
+
     const dirPath = getDirPath(filePath);
     if (dirPath) {
         console.debug(`Directory path extracted: ${dirPath}`);
         await ensureDirExists(vault, dirPath);
     }
-    
+
     const file = await vault.create(filePath, "");
     console.log(`File created: ${filePath}`);
     return file;
@@ -76,12 +74,12 @@ async function createTargetFile(vault: Vault, filePath: string): Promise<TFile> 
 
 async function ensureDirExists(vault: Vault, dirPath: string): Promise<void> {
     const dir = vault.getAbstractFileByPath(dirPath);
-    
+
     if (dir) {
         console.debug(`Folder already exists: ${dirPath}`);
         return;
     }
-    
+
     await vault.createFolder(dirPath);
     console.log(`Folder created: ${dirPath}`);
 }

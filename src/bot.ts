@@ -14,7 +14,7 @@ export class TelegramBot {
   bot: Bot;
   vault: Vault;
   settings: TGInboxSettings;
-  update_id: number = 0;
+  update_id = 0;
   private vaultWriter: VaultWriter;
 
   constructor(vault: Vault, settings: TGInboxSettings) {
