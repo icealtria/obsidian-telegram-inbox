@@ -1,4 +1,5 @@
-import { describe, expect, test } from "@jest/globals";
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import {
   generateContentFromTemplate,
   buildMsgData,
@@ -7,8 +8,6 @@ import {
 } from "../src/utils/template";
 import type { TGInboxSettings } from "../src/settings/types";
 import type { MessageUpdate } from "../src/type";
-
-jest.mock("obsidian");
 
 const baseSettings: TGInboxSettings = {
   token: "",
@@ -53,11 +52,20 @@ function createMockMessage(
   } as MessageUpdate;
 }
 
+function assertObjectContains(
+  actual: Record<string, unknown>,
+  expected: Record<string, unknown>
+): void {
+  for (const [key, value] of Object.entries(expected)) {
+    assert.deepStrictEqual(actual[key], value);
+  }
+}
+
 describe("generateContentFromTemplate", () => {
   test("renders template with message data", () => {
     const msg = createMockMessage("Hello world");
     const result = generateContentFromTemplate(msg, baseSettings);
-    expect(result).toBe("Hello world - Test User - 2021-07-21");
+    assert.strictEqual(result, "Hello world - Test User - 2021-07-21");
   });
 
   test("renders template with custom template", () => {
@@ -67,7 +75,7 @@ describe("generateContentFromTemplate", () => {
     };
     const msg = createMockMessage("Test message");
     const result = generateContentFromTemplate(msg, settings);
-    expect(result).toBe("From testuser: Test message");
+    assert.strictEqual(result, "From testuser: Test message");
   });
 
   test("handles template with all available fields", () => {
@@ -78,7 +86,7 @@ describe("generateContentFromTemplate", () => {
     };
     const msg = createMockMessage("Test");
     const result = generateContentFromTemplate(msg, settings);
-    expect(result).toBe(
+    assert.strictEqual(result, 
       "Test | Test User | testuser | 123 | 2021-07-21 | 14:00 | 1"
     );
   });
@@ -102,21 +110,21 @@ describe("generateContentFromTemplate", () => {
       },
     });
     const result = generateContentFromTemplate(msg, settings);
-    expect(result).toBe("From Original Sender: Forwarded message");
+    assert.strictEqual(result, "From Original Sender: Forwarded message");
   });
 
   test("handles empty template", () => {
     const settings = { ...baseSettings, message_template: "" };
     const msg = createMockMessage("Test");
     const result = generateContentFromTemplate(msg, settings);
-    expect(result).toBe("");
+    assert.strictEqual(result, "");
   });
 
   test("handles template with only static text", () => {
     const settings = { ...baseSettings, message_template: "Static text only" };
     const msg = createMockMessage("Test");
     const result = generateContentFromTemplate(msg, settings);
-    expect(result).toBe("Static text only");
+    assert.strictEqual(result, "Static text only");
   });
 
   test("handles template with unknown variables", () => {
@@ -126,7 +134,7 @@ describe("generateContentFromTemplate", () => {
     };
     const msg = createMockMessage("Test");
     const result = generateContentFromTemplate(msg, settings);
-    expect(result).toBe(" Test");
+    assert.strictEqual(result, " Test");
   });
 });
 
@@ -134,7 +142,7 @@ describe("generatePath", () => {
   test("generates path from template", () => {
     const msg = createMockMessage("Test");
     const result = generatePath(msg, baseSettings);
-    expect(result).toBe("Telegram/Test User/2021-07-21-14-00");
+    assert.strictEqual(result, "Telegram/Test User/2021-07-21-14-00");
   });
 
   test("generates path with custom template", () => {
@@ -144,7 +152,7 @@ describe("generatePath", () => {
     };
     const msg = createMockMessage("Test");
     const result = generatePath(msg, settings);
-    expect(result).toBe("Notes/Test/2021-07-21");
+    assert.strictEqual(result, "Notes/Test/2021-07-21");
   });
 
   test("sanitizes invalid filename characters", () => {
@@ -158,7 +166,7 @@ describe("generatePath", () => {
       },
     });
     const result = generatePath(msg, baseSettings);
-    expect(result).toBe("Telegram/Test~User~1 Name/2021-07-21-14-00");
+    assert.strictEqual(result, "Telegram/Test~User~1 Name/2021-07-21-14-00");
   });
 
   test("handles channel post", () => {
@@ -180,7 +188,7 @@ describe("generatePath", () => {
       text: "Channel message",
     } as MessageUpdate;
     const result = generatePath(msg, baseSettings);
-    expect(result).toBe("Telegram/📒 Channel/2021-07-21-14-00");
+    assert.strictEqual(result, "Telegram/📒 Channel/2021-07-21-14-00");
   });
 
   test("handles forward origin in path", () => {
@@ -202,7 +210,7 @@ describe("generatePath", () => {
       },
     });
     const result = generatePath(msg, settings);
-    expect(result).toBe("Original Sender/2021-07-21");
+    assert.strictEqual(result, "Original Sender/2021-07-21");
   });
 });
 
@@ -210,7 +218,7 @@ describe("buildPathData", () => {
   test("builds path data for normal message", () => {
     const msg = createMockMessage("Test");
     const result = buildPathData(msg);
-    expect(result).toEqual({
+    assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "Test",
       name: "Test User",
@@ -230,7 +238,7 @@ describe("buildPathData", () => {
       },
     });
     const result = buildPathData(msg);
-    expect(result).toEqual({
+    assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "Test",
       name: "Test",
@@ -255,7 +263,7 @@ describe("buildPathData", () => {
       },
     });
     const result = buildPathData(msg);
-    expect(result).toEqual({
+    assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "Test",
       name: "Test User",
@@ -284,7 +292,7 @@ describe("buildPathData", () => {
       text: "Channel message",
     } as MessageUpdate;
     const result = buildPathData(msg);
-    expect(result).toEqual({
+    assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "📒 Channel",
       name: "📒 Channel",
@@ -299,7 +307,7 @@ describe("buildPathData", () => {
       date: 1626843600, // 2021-07-21 13:00:00
     });
     const result = buildPathData(morningMsg);
-    expect(result.time).toBe("13-00");
+    assert.strictEqual(result.time, "13-00");
   });
 
   test("handles different times of day", () => {
@@ -315,11 +323,11 @@ describe("buildPathData", () => {
     const afternoonResult = buildPathData(afternoonMsg);
     
     // Times should be different
-    expect(morningResult.time).not.toBe(afternoonResult.time);
+    assert.notStrictEqual(morningResult.time, afternoonResult.time);
     
     // Both should follow HH-mm format
-    expect(morningResult.time).toMatch(/^\d{2}-\d{2}$/);
-    expect(afternoonResult.time).toMatch(/^\d{2}-\d{2}$/);
+    assert.match(morningResult.time, /^\d{2}-\d{2}$/);
+    assert.match(afternoonResult.time, /^\d{2}-\d{2}$/);
   });
 });
 
@@ -327,7 +335,7 @@ describe("buildMsgData", () => {
   test("builds message data for normal message", () => {
     const msg = createMockMessage("Hello world");
     const result = buildMsgData(msg, baseSettings);
-    expect(result).toMatchObject({
+    assertObjectContains(result as Record<string, unknown>, {
       message_id: 1,
       text: "Hello world",
       date: "2021-07-21",
@@ -353,7 +361,7 @@ describe("buildMsgData", () => {
       },
     });
     const result = buildMsgData(msg, baseSettings);
-    expect(result).toMatchObject({
+    assertObjectContains(result as Record<string, unknown>, {
       message_id: 1,
       text: "Forwarded message",
       date: "2021-07-21",
@@ -385,7 +393,7 @@ describe("buildMsgData", () => {
       text: "Channel message",
     } as MessageUpdate;
     const result = buildMsgData(msg, baseSettings);
-    expect(result).toMatchObject({
+    assertObjectContains(result as Record<string, unknown>, {
       message_id: 1,
       text: "Channel message",
       date: "2021-07-21",
@@ -405,7 +413,7 @@ describe("buildMsgData", () => {
       },
     });
     const result = buildMsgData(msg, baseSettings);
-    expect(result).toMatchObject({
+    assertObjectContains(result as Record<string, unknown>, {
       origin_name: "Hidden User",
       origin_username: "",
     });
@@ -426,7 +434,7 @@ describe("buildMsgData", () => {
       },
     });
     const result = buildMsgData(msg, baseSettings);
-    expect(result).toMatchObject({
+    assertObjectContains(result as Record<string, unknown>, {
       origin_name: "Source Channel",
       origin_username: "sourcechannel",
       origin_link: "https://t.me/sourcechannel/42",
@@ -447,7 +455,7 @@ describe("buildMsgData", () => {
       },
     });
     const result = buildMsgData(msg, baseSettings);
-    expect(result).toMatchObject({
+    assertObjectContains(result as Record<string, unknown>, {
       origin_name: "Private User",
       origin_username: "",
     });
@@ -466,7 +474,7 @@ describe("buildMsgData", () => {
       },
     });
     const result = buildMsgData(msg, baseSettings);
-    expect(result).toMatchObject({
+    assertObjectContains(result as Record<string, unknown>, {
       origin_name: "Test Group",
       origin_username: "",
     });

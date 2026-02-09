@@ -1,9 +1,8 @@
-import { describe, expect, test } from "@jest/globals";
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import { toMarkdownV2 } from "../src/utils/markdown";
 import type { TGInboxSettings } from "src/settings/types";
 import type { MsgNonChannel } from "src/type";
-
-jest.mock("obsidian");
 
 const baseSettings: TGInboxSettings = {
   token: "",
@@ -47,7 +46,7 @@ describe("toMarkdownV2", () => {
   test("returns plain text when no entities", () => {
     const msg = createMockMessage("Hello world");
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello world");
+    assert.strictEqual(result, "Hello world");
   });
 
   test("converts bold text", () => {
@@ -55,7 +54,7 @@ describe("toMarkdownV2", () => {
       { type: "bold", offset: 6, length: 4 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello **bold** world");
+    assert.strictEqual(result, "Hello **bold** world");
   });
 
   test("converts italic text", () => {
@@ -63,7 +62,7 @@ describe("toMarkdownV2", () => {
       { type: "italic", offset: 6, length: 6 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello *italic* world");
+    assert.strictEqual(result, "Hello *italic* world");
   });
 
   test("converts underline text", () => {
@@ -71,7 +70,7 @@ describe("toMarkdownV2", () => {
       { type: "underline", offset: 6, length: 9 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello <u>underline</u> world");
+    assert.strictEqual(result, "Hello <u>underline</u> world");
   });
 
   test("converts strikethrough text", () => {
@@ -79,7 +78,7 @@ describe("toMarkdownV2", () => {
       { type: "strikethrough", offset: 6, length: 13 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello ~~strikethrough~~ world");
+    assert.strictEqual(result, "Hello ~~strikethrough~~ world");
   });
 
   test("converts inline code", () => {
@@ -87,7 +86,7 @@ describe("toMarkdownV2", () => {
       { type: "code", offset: 6, length: 4 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello `code` world");
+    assert.strictEqual(result, "Hello `code` world");
   });
 
   test("converts preformatted code block", () => {
@@ -95,7 +94,7 @@ describe("toMarkdownV2", () => {
       { type: "pre", offset: 6, length: 10 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello ```\ncode block\n``` world");
+    assert.strictEqual(result, "Hello ```\ncode block\n``` world");
   });
 
   test("converts spoiler text", () => {
@@ -103,7 +102,7 @@ describe("toMarkdownV2", () => {
       { type: "spoiler", offset: 6, length: 7 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello ==spoiler== world");
+    assert.strictEqual(result, "Hello ==spoiler== world");
   });
 
   test("converts text link", () => {
@@ -111,7 +110,7 @@ describe("toMarkdownV2", () => {
       { type: "text_link", offset: 6, length: 4, url: "https://example.com" },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello [link](https://example.com) world");
+    assert.strictEqual(result, "Hello [link](https://example.com) world");
   });
 
   test("converts URL", () => {
@@ -119,7 +118,7 @@ describe("toMarkdownV2", () => {
       { type: "url", offset: 6, length: 19 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello https://example.com world");
+    assert.strictEqual(result, "Hello https://example.com world");
   });
 
   test("converts text mention", () => {
@@ -127,7 +126,7 @@ describe("toMarkdownV2", () => {
       { type: "text_mention", offset: 6, length: 5, user: { id: 12345 } },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello [@user](tg://user?id=12345) world");
+    assert.strictEqual(result, "Hello [@user](tg://user?id=12345) world");
   });
 
   test("converts blockquote", () => {
@@ -135,7 +134,7 @@ describe("toMarkdownV2", () => {
       { type: "blockquote", offset: 6, length: 10 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello >blockquote");
+    assert.strictEqual(result, "Hello >blockquote");
   });
 
   test("converts multi-line blockquote", () => {
@@ -143,7 +142,7 @@ describe("toMarkdownV2", () => {
       { type: "blockquote", offset: 6, length: 11 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello >line1\n>line2 world");
+    assert.strictEqual(result, "Hello >line1\n>line2 world");
   });
 
   test("handles multiple entities", () => {
@@ -152,14 +151,14 @@ describe("toMarkdownV2", () => {
       { type: "italic", offset: 15, length: 6 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello **bold** and *italic* world");
+    assert.strictEqual(result, "Hello **bold** and *italic* world");
   });
 
   test("returns plain text when remove_formatting is true", () => {
     const msg = createMockMessage("Hello **bold** world");
     const settings = { ...baseSettings, remove_formatting: true };
     const result = toMarkdownV2(msg, settings);
-    expect(result).toBe("Hello **bold** world");
+    assert.strictEqual(result, "Hello **bold** world");
   });
 
   test("handles mention entity (returns as-is)", () => {
@@ -167,7 +166,7 @@ describe("toMarkdownV2", () => {
       { type: "mention", offset: 6, length: 9 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello @username world");
+    assert.strictEqual(result, "Hello @username world");
   });
 
   test("handles hashtag entity (returns as-is)", () => {
@@ -175,7 +174,7 @@ describe("toMarkdownV2", () => {
       { type: "hashtag", offset: 6, length: 8 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello #hashtag world");
+    assert.strictEqual(result, "Hello #hashtag world");
   });
 
   test("handles bot_command entity (returns as-is)", () => {
@@ -183,7 +182,7 @@ describe("toMarkdownV2", () => {
       { type: "bot_command", offset: 6, length: 6 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello /start world");
+    assert.strictEqual(result, "Hello /start world");
   });
 
   test("handles email entity (returns as-is)", () => {
@@ -191,7 +190,7 @@ describe("toMarkdownV2", () => {
       { type: "email", offset: 6, length: 16 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello test@example.com world");
+    assert.strictEqual(result, "Hello test@example.com world");
   });
 
   test("handles phone_number entity (returns as-is)", () => {
@@ -199,7 +198,7 @@ describe("toMarkdownV2", () => {
       { type: "phone_number", offset: 6, length: 11 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello +1234567890 world");
+    assert.strictEqual(result, "Hello +1234567890 world");
   });
 
   test("handles cashtag entity (returns as-is)", () => {
@@ -207,7 +206,7 @@ describe("toMarkdownV2", () => {
       { type: "cashtag", offset: 6, length: 4 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello $BTC world");
+    assert.strictEqual(result, "Hello $BTC world");
   });
 
   test("handles custom_emoji entity (returns as-is)", () => {
@@ -215,6 +214,6 @@ describe("toMarkdownV2", () => {
       { type: "custom_emoji", offset: 6, length: 2 },
     ]);
     const result = toMarkdownV2(msg, baseSettings);
-    expect(result).toBe("Hello 👍 world");
+    assert.strictEqual(result, "Hello 👍 world");
   });
 });

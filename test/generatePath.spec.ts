@@ -1,3 +1,5 @@
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import { TGInboxSettings } from "src/settings/types";
 import { generatePath } from "../src/utils/template";
 import { msgFowardUser, channel_post_fw, channel_post } from "./msgs";
@@ -24,19 +26,19 @@ describe('generatePath', () => {
     test('forward message', () => {
         const path = "/Telegram/Neko ✨-猫-12345/2021-07-21-14-00"
 
-        expect(generatePath(msgFowardUser, settings)).toBe(path)
+        assert.strictEqual(generatePath(msgFowardUser, settings), path)
     })
 
     test('channel_post', () => {
         const path = "/Telegram/📒-📒--1001234567890/2025-01-10-13-03"
 
-        expect(generatePath(channel_post, settings)).toBe(path)
+        assert.strictEqual(generatePath(channel_post, settings), path)
     })
 
     test('channel_post_fw', () => {
         const path = "/Telegram/📒-Haha--1001234567890/2025-01-10-00-40"
 
-        expect(generatePath(channel_post_fw, settings)).toBe(path)
+        assert.strictEqual(generatePath(channel_post_fw, settings), path)
 
     })
 })

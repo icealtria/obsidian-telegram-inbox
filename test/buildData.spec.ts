@@ -1,9 +1,8 @@
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import { type MessageData, buildMsgData } from "../src/utils/template";
-import { describe, expect, test } from "@jest/globals"
 import { msg, msgHidden, msgFowardUser, msgCh, channel_post_fw, channel_post } from "./msgs";
 import type { TGInboxSettings } from "src/settings/types";
-
-jest.mock("obsidian");
 
 const settings: TGInboxSettings = {
     token: "",
@@ -39,7 +38,7 @@ describe('buildData', () => {
             username: "neko"
         }
 
-        expect(buildMsgData(msgFowardUser, settings)).toStrictEqual(data)
+        assert.deepStrictEqual(buildMsgData(msgFowardUser, settings), data)
     })
 
 
@@ -57,7 +56,7 @@ describe('buildData', () => {
             message_id: 1234,
         }
 
-        expect(buildMsgData(msgHidden, settings)).toStrictEqual(data)
+        assert.deepStrictEqual(buildMsgData(msgHidden, settings), data)
     })
 
     test('without forward_origin', () => {
@@ -71,7 +70,7 @@ describe('buildData', () => {
             user_id: 12345,
             message_id: 1234,
         }
-        expect(buildMsgData(msg, settings)).toStrictEqual(data)
+        assert.deepStrictEqual(buildMsgData(msg, settings), data)
     });
 
     test("Ch", () => {
@@ -88,9 +87,7 @@ describe('buildData', () => {
             origin_link: "https://t.me/miaowu/42065"
         }
 
-        expect(buildMsgData(msgCh, settings)).toStrictEqual(
-            data
-        )
+        assert.deepStrictEqual(buildMsgData(msgCh, settings), data)
     })
 
     test("channel post", () => {
@@ -104,7 +101,7 @@ describe('buildData', () => {
             user_id: -1001234567890,
         }
 
-        expect(buildMsgData(channel_post, settings)).toStrictEqual(data)
+        assert.deepStrictEqual(buildMsgData(channel_post, settings), data)
     })
 
     test("channel post forward", () => {
@@ -121,7 +118,7 @@ describe('buildData', () => {
             user_id: -1001234567890,
             origin_link: "https://t.me/haha/2174789"
         }
-        expect(buildMsgData(channel_post_fw, settings)).toStrictEqual(data)
+        assert.deepStrictEqual(buildMsgData(channel_post_fw, settings), data)
 
     })
 });

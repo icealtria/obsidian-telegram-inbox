@@ -1,53 +1,52 @@
-import { describe, expect, test } from "@jest/globals";
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import { getExt, getFileUrl, isTask } from "../src/utils/file";
 import type { File } from "grammy/types";
 import type { MessageUpdate } from "../src/type";
 
-jest.mock("obsidian");
-
 describe("getExt", () => {
   test("extracts jpg extension", () => {
-    expect(getExt("photos/file_123.jpg")).toBe("jpg");
+    assert.strictEqual(getExt("photos/file_123.jpg"), "jpg");
   });
 
   test("extracts png extension", () => {
-    expect(getExt("images/picture.png")).toBe("png");
+    assert.strictEqual(getExt("images/picture.png"), "png");
   });
 
   test("extracts mp4 extension", () => {
-    expect(getExt("videos/movie.mp4")).toBe("mp4");
+    assert.strictEqual(getExt("videos/movie.mp4"), "mp4");
   });
 
   test("extracts pdf extension", () => {
-    expect(getExt("documents/file.pdf")).toBe("pdf");
+    assert.strictEqual(getExt("documents/file.pdf"), "pdf");
   });
 
   test("handles files without extension", () => {
-    expect(getExt("path/to/file")).toBe("path/to/file");
+    assert.strictEqual(getExt("path/to/file"), "path/to/file");
   });
 
   test("handles empty path", () => {
-    expect(getExt("")).toBe("");
+    assert.strictEqual(getExt(""), "");
   });
 
   test("handles path with multiple dots", () => {
-    expect(getExt("path/to/file.name.with.dots.txt")).toBe("txt");
+    assert.strictEqual(getExt("path/to/file.name.with.dots.txt"), "txt");
   });
 
   test("handles uppercase extensions", () => {
-    expect(getExt("photos/file.JPG")).toBe("JPG");
+    assert.strictEqual(getExt("photos/file.JPG"), "JPG");
   });
 
   test("handles file starting with dot", () => {
-    expect(getExt(".gitignore")).toBe("gitignore");
+    assert.strictEqual(getExt(".gitignore"), "gitignore");
   });
 
   test("handles complex paths", () => {
-    expect(getExt("/very/long/path/to/the/file/document.docx")).toBe("docx");
+    assert.strictEqual(getExt("/very/long/path/to/the/file/document.docx"), "docx");
   });
 
   test("handles filename with only extension", () => {
-    expect(getExt(".env")).toBe("env");
+    assert.strictEqual(getExt(".env"), "env");
   });
 });
 
@@ -61,7 +60,7 @@ describe("getFileUrl", () => {
     };
     const token = "bot_token_123";
     const result = getFileUrl(file, token);
-    expect(result).toBe("https://api.telegram.org/file/botbot_token_123/photos/file_123.jpg");
+    assert.strictEqual(result, "https://api.telegram.org/file/botbot_token_123/photos/file_123.jpg");
   });
 
   test("handles different file paths", () => {
@@ -73,7 +72,7 @@ describe("getFileUrl", () => {
     };
     const token = "my_bot_token";
     const result = getFileUrl(file, token);
-    expect(result).toBe("https://api.telegram.org/file/botmy_bot_token/documents/report.pdf");
+    assert.strictEqual(result, "https://api.telegram.org/file/botmy_bot_token/documents/report.pdf");
   });
 
   test("handles videos", () => {
@@ -85,7 +84,7 @@ describe("getFileUrl", () => {
     };
     const token = "video_bot";
     const result = getFileUrl(file, token);
-    expect(result).toBe("https://api.telegram.org/file/botvideo_bot/videos/movie.mp4");
+    assert.strictEqual(result, "https://api.telegram.org/file/botvideo_bot/videos/movie.mp4");
   });
 
   test("handles empty file path", () => {
@@ -97,7 +96,7 @@ describe("getFileUrl", () => {
     };
     const token = "test_token";
     const result = getFileUrl(file, token);
-    expect(result).toBe("https://api.telegram.org/file/bottest_token/");
+    assert.strictEqual(result, "https://api.telegram.org/file/bottest_token/");
   });
 });
 
@@ -124,47 +123,47 @@ describe("isTask", () => {
 
   test("returns true for /task command", () => {
     const msg = createMockMessage("/task Buy groceries");
-    expect(isTask(msg)).toBe(true);
+    assert.strictEqual(isTask(msg), true);
   });
 
   test("returns true for /TASK (uppercase)", () => {
     const msg = createMockMessage("/TASK Buy groceries");
-    expect(isTask(msg)).toBe(true);
+    assert.strictEqual(isTask(msg), true);
   });
 
   test("returns true for /Task (mixed case)", () => {
     const msg = createMockMessage("/Task Buy groceries");
-    expect(isTask(msg)).toBe(true);
+    assert.strictEqual(isTask(msg), true);
   });
 
   test("returns true for /task with leading spaces", () => {
     const msg = createMockMessage("  /task Buy groceries");
-    expect(isTask(msg)).toBe(true);
+    assert.strictEqual(isTask(msg), true);
   });
 
   test("returns false for regular text", () => {
     const msg = createMockMessage("Hello world");
-    expect(isTask(msg)).toBe(false);
+    assert.strictEqual(isTask(msg), false);
   });
 
   test("returns false for other commands", () => {
     const msg = createMockMessage("/start");
-    expect(isTask(msg)).toBe(false);
+    assert.strictEqual(isTask(msg), false);
   });
 
   test("returns false for /taskword (starts with /task)", () => {
     const msg = createMockMessage("/taskword something");
-    expect(isTask(msg)).toBe(false);
+    assert.strictEqual(isTask(msg), false);
   });
 
   test("returns false for text containing /task", () => {
     const msg = createMockMessage("This is a /task in the middle");
-    expect(isTask(msg)).toBe(false);
+    assert.strictEqual(isTask(msg), false);
   });
 
   test("returns false for empty text", () => {
     const msg = createMockMessage("");
-    expect(isTask(msg)).toBe(false);
+    assert.strictEqual(isTask(msg), false);
   });
 
   test("returns false for undefined text", () => {
@@ -182,16 +181,16 @@ describe("isTask", () => {
       },
       date: 1626847200,
     } as MessageUpdate;
-    expect(isTask(msg)).toBe(false);
+    assert.strictEqual(isTask(msg), false);
   });
 
   test("returns true for /task only (no description)", () => {
     const msg = createMockMessage("/task");
-    expect(isTask(msg)).toBe(true);
+    assert.strictEqual(isTask(msg), true);
   });
 
   test("returns true for /task with trailing spaces", () => {
     const msg = createMockMessage("/task   ");
-    expect(isTask(msg)).toBe(true);
+    assert.strictEqual(isTask(msg), true);
   });
 });

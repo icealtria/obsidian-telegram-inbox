@@ -1,3 +1,5 @@
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import { type PathData, buildPathData } from "../src/utils/template";
 import { msg, msgFowardUser, channel_post, channel_post_fw } from "./msgs";
 
@@ -12,7 +14,7 @@ describe('generatePath', () => {
             origin_name: "Neko ✨"
         }
 
-        expect(buildPathData(msg)).toStrictEqual(data)
+        assert.deepStrictEqual(buildPathData(msg), data)
     })
 
     test('forward message', () => {
@@ -26,7 +28,7 @@ describe('generatePath', () => {
             origin_name: "猫"
         }
 
-        expect(buildPathData(msgFowardUser)).toStrictEqual(data)
+        assert.deepStrictEqual(buildPathData(msgFowardUser), data)
     })
 
     test('channel post', () => {
@@ -38,7 +40,7 @@ describe('generatePath', () => {
             user_id: -1001234567890,
             origin_name: "📒"
         }
-        expect(buildPathData(channel_post)).toStrictEqual(data)
+        assert.deepStrictEqual(buildPathData(channel_post), data)
     })
 
     test('channel post forward', () => {
@@ -50,6 +52,6 @@ describe('generatePath', () => {
             user_id: -1001234567890,
             origin_name: "Haha"
         }
-        expect(buildPathData(channel_post_fw)).toStrictEqual(data)
+        assert.deepStrictEqual(buildPathData(channel_post_fw), data)
     })
 })
