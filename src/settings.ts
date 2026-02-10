@@ -327,6 +327,26 @@ export class TGInboxSettingTab extends PluginSettingTab {
     if (remotelySync) {
       syncStatusDiv.createDiv({ text: "Remotely Sync: enabled" });
     }
+
+    const donationDiv = containerEl.createDiv({ cls: "tg-inbox-donation-footer" });
+
+    const donationInfo = donationDiv.createDiv({ cls: "donation-info" });
+    donationInfo.createSpan({ text: "❤️", cls: "donation-heart" });
+
+    const donationTextContainer = donationInfo.createDiv({ cls: "donation-text-container" });
+    donationTextContainer.createEl("strong", { text: "Support development" });
+    donationTextContainer.createEl("div", {
+      text: "If you find this plugin helpful, please consider supporting its development to help me keep it alive. Thank you!",
+      cls: "donation-text"
+    });
+
+    const buttonContainer = donationDiv.createDiv({ cls: "donation-buttons" });
+
+    const coffeeBtn = buttonContainer.createEl("button", { text: "Ko-fi" });
+    coffeeBtn.onclick = () => window.open("https://ko-fi.com/icealtria");
+
+    const githubBtn = buttonContainer.createEl("button", { text: "GitHub Sponsors" });
+    githubBtn.onclick = () => window.open("https://github.com/sponsors/icealtria");
   }
 
   hide() {

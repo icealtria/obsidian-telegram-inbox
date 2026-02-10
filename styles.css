@@ -50,3 +50,57 @@ If your plugin does not need CSS, delete this file.
   opacity: 1;
   pointer-events: auto;
 }
+
+.tg-inbox-donation-footer {
+  margin-top: 50px;
+  padding: 30px 10px;
+  border-top: 1px solid var(--background-modifier-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.tg-inbox-donation-footer .donation-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.tg-inbox-donation-footer .donation-heart {
+  font-size: 1.4em;
+  color: #e91e63;
+  margin-top: 2px;
+}
+
+.tg-inbox-donation-footer .donation-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tg-inbox-donation-footer .donation-text-container strong {
+  font-size: 1.05em;
+  color: var(--text-normal);
+}
+
+.tg-inbox-donation-footer .donation-text {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  line-height: 1.4;
+  max-width: 500px;
+}
+
+.tg-inbox-donation-footer .donation-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.tg-inbox-donation-footer button {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.85em;
+  padding: 6px 14px;
+}
