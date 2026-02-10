@@ -80,24 +80,27 @@ export class TGInboxSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.download_media = value;
             await this.plugin.saveSettings();
-            this.display();
+            this.toggleVisibility(downloadDirContainer, value);
           })
       );
 
-    if (this.plugin.settings.download_media) {
-      new Setting(containerEl)
-        .setName("Download directory")
-        .setDesc("Specify the directory for downloading media files")
-        .addText((text) =>
-          text
-            .setPlaceholder("Enter download directory")
-            .setValue(this.plugin.settings.download_dir)
-            .onChange(async (value) => {
-              this.plugin.settings.download_dir = value;
-              await this.plugin.saveSettings();
-            })
-        );
-    }
+    const downloadDirContainer = containerEl.createDiv({
+      cls: "tg-inbox-setting-collapsible"
+    });
+    this.toggleVisibility(downloadDirContainer, this.plugin.settings.download_media);
+
+    new Setting(downloadDirContainer)
+      .setName("Download directory")
+      .setDesc("Specify the directory for downloading media files")
+      .addText((text) =>
+        text
+          .setPlaceholder("Enter download directory")
+          .setValue(this.plugin.settings.download_dir)
+          .onChange(async (value) => {
+            this.plugin.settings.download_dir = value;
+            await this.plugin.saveSettings();
+          })
+      );
 
     const message_template_desc = document.createDocumentFragment();
     message_template_desc.append("Customize the message template. ");
@@ -150,6 +153,35 @@ export class TGInboxSettingTab extends PluginSettingTab {
       })
 
     new Setting(containerEl)
+      .setName("Insert after heading")
+      .setDesc("Insert messages after a specific heading. This will override the 'Reverse order' setting and always insert messages after the heading.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.settings.insert_after_heading)
+          .onChange(async (value) => {
+            this.plugin.settings.insert_after_heading = value;
+            await this.plugin.saveSettings();
+            this.toggleVisibility(targetHeadingContainer, value);
+          });
+      })
+
+    const targetHeadingContainer = containerEl.createDiv({
+      cls: "tg-inbox-setting-collapsible"
+    });
+    this.toggleVisibility(targetHeadingContainer, this.plugin.settings.insert_after_heading);
+
+    new Setting(targetHeadingContainer)
+      .setName("Target heading")
+      .setDesc("Messages will be inserted after this heading (e.g. '## Inbox').")
+      .addText((text) => {
+        text.setPlaceholder("## Inbox")
+          .setValue(this.plugin.settings.target_heading)
+          .onChange(async (value) => {
+            this.plugin.settings.target_heading = value;
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
       .setName("Disable automatically receiving on Startup")
       .setDesc("If it is disabled, you will need to manually run a command to start bot or get updates.")
       .addToggle((toggle) => {
@@ -175,11 +207,11 @@ export class TGInboxSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.remove_formatting = value;
             await this.plugin.saveSettings();
-            this.display();
+            markdownEscaper.setDisabled(value);
+            markdownEscaper.settingEl.classList.toggle("tg-inbox-setting-disabled", value);
           });
       })
 
-    const markdownEscaperDisabled = this.plugin.settings.remove_formatting;
     const markdownEscaper = new Setting(containerEl)
       .setName("Markdown escaper")
       .setDesc("Use Markdown escaper for text. For example: '[link](https://example.com)' will display as '[link](https://example.com)' instead of a link.")
@@ -191,8 +223,9 @@ export class TGInboxSettingTab extends PluginSettingTab {
           });
       });
 
-    if (markdownEscaperDisabled) {
-      markdownEscaper.setClass("tg-inbox-setting-disabled");
+    if (this.plugin.settings.remove_formatting) {
+      markdownEscaper.setDisabled(true);
+      markdownEscaper.settingEl.classList.add("tg-inbox-setting-disabled");
     }
 
     new Setting(containerEl)
@@ -203,7 +236,8 @@ export class TGInboxSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.is_custom_file = value;
             await this.plugin.saveSettings();
-            this.display();
+            this.toggleVisibility(customPathContainer, value);
+            this.toggleVisibility(timeCutoffContainer, !value);
           });
       })
 
@@ -214,32 +248,39 @@ export class TGInboxSettingTab extends PluginSettingTab {
     custom_path_wiki.text = "Learn more";
     custom_path_desc.append(custom_path_wiki)
 
+    const customPathContainer = containerEl.createDiv({
+      cls: "tg-inbox-setting-collapsible"
+    });
+    this.toggleVisibility(customPathContainer, this.plugin.settings.is_custom_file);
 
-    if (this.plugin.settings.is_custom_file) {
-      new Setting(containerEl)
-        .setName("Custom path")
-        .setDesc(custom_path_desc)
-        .addText((text) => {
-          text.setPlaceholder("Default: Telegram-Inbox.md")
-            .setValue(this.plugin.settings.custom_file_path)
-            .onChange((value) => {
-              this.plugin.settings.custom_file_path = value;
-              this.plugin.saveSettings();
-            })
-        })
-    } else {
-      // Daily note time cutoff setting
-      const timeCutoffSetting = new Setting(containerEl)
-        .setName("Daily note time cutoff")
-        .setDesc("Set the time cutoff for daily notes. Messages received before this time will be saved to the previous day's note. Format: HH:MM (24-hour)")
-        .addText((text) => {
-          text.setPlaceholder("00:00")
-            .setValue(this.plugin.settings.daily_note_time_cutoff)
-            .onChange((value) => {
-              this.validateAndSetTimeCutoff(value, text.inputEl, timeCutoffSetting);
-            });
-        });
-    }
+    new Setting(customPathContainer)
+      .setName("Custom path")
+      .setDesc(custom_path_desc)
+      .addText((text) => {
+        text.setPlaceholder("Default: Telegram-Inbox.md")
+          .setValue(this.plugin.settings.custom_file_path)
+          .onChange((value) => {
+            this.plugin.settings.custom_file_path = value;
+            this.plugin.saveSettings();
+          })
+      })
+
+    const timeCutoffContainer = containerEl.createDiv({
+      cls: "tg-inbox-setting-collapsible"
+    });
+    this.toggleVisibility(timeCutoffContainer, !this.plugin.settings.is_custom_file);
+
+    // Daily note time cutoff setting
+    const timeCutoffSetting = new Setting(timeCutoffContainer)
+      .setName("Daily note time cutoff")
+      .setDesc("Set the time cutoff for daily notes. Messages received before this time will be saved to the previous day's note. Format: HH:MM (24-hour)")
+      .addText((text) => {
+        text.setPlaceholder("00:00")
+          .setValue(this.plugin.settings.daily_note_time_cutoff)
+          .onChange((value) => {
+            this.validateAndSetTimeCutoff(value, text.inputEl, timeCutoffSetting);
+          });
+      });
 
 
     const runAfterSyncSetting = new Setting(containerEl)
@@ -277,6 +318,10 @@ export class TGInboxSettingTab extends PluginSettingTab {
     window.clearInterval(this.updateId);
   }
 
+  private toggleVisibility(el: HTMLElement, visible: boolean) {
+    el.classList.toggle("is-visible", visible);
+  }
+
   async updateStatus() {
     try {
       const me = await this.plugin.getBotInfo();
@@ -293,7 +338,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
   private validateAndSetTimeCutoff(value: string, inputEl: HTMLInputElement, setting: Setting) {
     const timeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/;
     const isValid = timeRegex.test(value);
-    
+
     if (isValid) {
       // Valid time format
       inputEl.classList.remove("tg-inbox-time-input-error");
@@ -310,7 +355,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
   private showErrorText(setting: Setting, message: string) {
     // Remove existing error text
     this.removeErrorText(setting);
-    
+
     // Add error text
     const errorDiv = setting.descEl.createDiv({
       cls: "tg-inbox-error-text",

@@ -22,7 +22,7 @@ If your plugin does not need CSS, delete this file.
   font-size: 0.8em;
 }
 
-.tg-inbox-setting-disabled>.setting-item-info * {
+.tg-inbox-setting-disabled > .setting-item-info * {
   color: var(--text-faint);
 }
 
@@ -35,4 +35,18 @@ If your plugin does not need CSS, delete this file.
 .tg-inbox-time-input-error {
   border-color: #ff6b6b !important;
   box-shadow: 0 0 0 1px #ff6b6b !important;
+}
+
+.tg-inbox-setting-collapsible {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tg-inbox-setting-collapsible.is-visible {
+  max-height: 500px; /* Adjust as needed */
+  opacity: 1;
+  pointer-events: auto;
 }
