@@ -45,12 +45,13 @@ export async function insertMessageAfterHeading(vault: Vault, message: string, t
     }
 
     // If heading doesn't exist, create it at the end
-    const lastLine = lines[lines.length - 1];
     let newData = data;
-    if (lastLine !== undefined && lastLine.trim() !== "" && !data.endsWith("\n")) {
-      newData += "\n\n";
-    } else if (!data.endsWith("\n")) {
-      newData += "\n";
+    if (data.length > 0) {
+      if (!data.endsWith("\n")) {
+        newData += "\n\n";
+      } else if (!data.endsWith("\n\n")) {
+        newData += "\n";
+      }
     }
 
     return `${newData}${heading}\n${message}`;
