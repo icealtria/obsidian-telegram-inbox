@@ -2,7 +2,7 @@ const Module = require("node:module");
 
 const originalLoad = Module._load;
 
-Module._load = function (request, parent, isMain) {
+Module._load = function (request, _parent, _isMain) {
   if (request === "obsidian") {
     const moment = require("moment");
 
