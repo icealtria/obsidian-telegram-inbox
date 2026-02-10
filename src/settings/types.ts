@@ -1,3 +1,5 @@
+export type ActionAfterReception = "react" | "delete";
+
 export interface TGInboxSettings {
   token: string;
   marker: string;
@@ -15,6 +17,7 @@ export interface TGInboxSettings {
   daily_note_time_cutoff: string; // Format: "HH:MM" (24-hour format)
   insert_after_heading: boolean;
   target_heading: string;
+  action_after_reception: ActionAfterReception;
 }
 
 export const DEFAULT_SETTINGS: TGInboxSettings = {
@@ -34,4 +37,5 @@ export const DEFAULT_SETTINGS: TGInboxSettings = {
   daily_note_time_cutoff: "00:00",
   insert_after_heading: false,
   target_heading: "## Inbox",
+  action_after_reception: "react",
 };

@@ -7,7 +7,16 @@ import type { VaultWriter } from "./vault-writer";
 import { generateFilename } from "./utils";
 import type { MessageUpdate } from "../type";
 
-async function sendReaction(ctx: Context): Promise<void> {
+async function executePostAction(ctx: Context, settings: TGInboxSettings): Promise<void> {
+  if (settings.action_after_reception === "delete") {
+    try {
+      await ctx.deleteMessage();
+      return;
+    } catch (err) {
+      console.warn("Failed to delete message, falling back to reaction:", err);
+    }
+  }
+
   try {
     await ctx.react("❤");
   } catch (err) {
@@ -20,7 +29,7 @@ function handleVaultError(ctx: Context, err: Error, context: string): void {
   ctx.reply(`Failed to ${context}. Error: ${err.message}`);
 }
 
-export function setupCommands(bot: Bot, vaultWriter: VaultWriter) {
+export function setupCommands(bot: Bot, settings: TGInboxSettings, vaultWriter: VaultWriter) {
   bot.command("start", (ctx) => {
     ctx.reply(
       "Hello! Send me a message to add it to your Obsidian daily note.\n\n/task followed by the description will add it as a task item."
@@ -31,7 +40,7 @@ export function setupCommands(bot: Bot, vaultWriter: VaultWriter) {
     const task = `- [ ] ${ctx.match}`;
     try {
       await vaultWriter.insertMessageToVault(task, ctx.msg as MessageUpdate);
-      await sendReaction(ctx);
+      await executePostAction(ctx, settings);
     } catch (err) {
       handleVaultError(ctx, err as Error, "insert task");
     }
@@ -42,10 +51,10 @@ export function setupMessageHandlers(bot: Bot, settings: TGInboxSettings, vaultW
   bot.on(["message:text", "channel_post:text"], async (ctx) => {
     const msg = ctx.msg as MessageUpdate;
     const content = generateContentFromTemplate(msg, settings);
-    
+
     try {
       await vaultWriter.insertMessageToVault(content, msg);
-      await sendReaction(ctx);
+      await executePostAction(ctx, settings);
     } catch (err) {
       handleVaultError(ctx, err as Error, "insert text message to vault");
     }
@@ -83,7 +92,7 @@ export function setupMessageHandlers(bot: Bot, settings: TGInboxSettings, vaultW
 
     try {
       await vaultWriter.insertMessageToVault(content, msg);
-      await sendReaction(ctx);
+      await executePostAction(ctx, settings);
     } catch (err) {
       handleVaultError(ctx, err as Error, "insert media message to vault");
     }

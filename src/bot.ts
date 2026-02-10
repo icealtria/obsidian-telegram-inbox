@@ -42,7 +42,7 @@ export class TelegramBot {
   }
 
   private setupHandlers(): void {
-    setupCommands(this.bot, this.vaultWriter);
+    setupCommands(this.bot, this.settings, this.vaultWriter);
     setupMessageHandlers(this.bot, this.settings, this.vaultWriter);
   }
 

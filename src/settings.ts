@@ -1,6 +1,7 @@
 import { type App, PluginSettingTab, Setting } from "obsidian";
 import type TGInbox from "./main";
 import * as Mustache from 'mustache';
+import { ActionAfterReception } from "./settings/types";
 import { getSyncStatus, hasSyncPlugin } from "./utils/sync";
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -138,6 +139,20 @@ export class TGInboxSettingTab extends PluginSettingTab {
       });
 
     const templateValidStatus = containerEl.createDiv();
+
+    new Setting(containerEl)
+      .setName("Action after reception")
+      .setDesc("Choose what to do after a message is successfully received. 'Delete' requires appropriate bot permissions (e.g., admin in channels/groups).")
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOption("react", "React with ❤")
+          .addOption("delete", "Delete message")
+          .setValue(this.plugin.settings.action_after_reception)
+          .onChange(async (value: ActionAfterReception) => {
+            this.plugin.settings.action_after_reception = value;
+            await this.plugin.saveSettings();
+          });
+      });
 
     new Setting(containerEl).setName("Advanced").setHeading();
 
