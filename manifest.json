@@ -1,7 +1,7 @@
 {
 	"id": "telegram-inbox",
 	"name": "Telegram Inbox",
-	"version": "1.7.2",
+	"version": "1.8.0",
 	"minAppVersion": "1.5.11",
 	"description": "Receive messages from Telegram bot and add them to daily note.",
 	"author": "icealtria",

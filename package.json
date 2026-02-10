@@ -1,6 +1,6 @@
 {
 	"name": "telegram-inbox",
-	"version": "1.7.2",
+	"version": "1.8.0",
 	"description": "Receive messages from Telegram bot and add them to daily note.",
 	"main": "main.js",
 	"scripts": {
