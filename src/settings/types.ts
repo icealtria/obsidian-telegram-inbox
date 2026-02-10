@@ -13,6 +13,8 @@ export interface TGInboxSettings {
   remove_formatting: boolean;
   run_after_sync: boolean;
   daily_note_time_cutoff: string; // Format: "HH:MM" (24-hour format)
+  insert_after_heading: boolean;
+  target_heading: string;
 }
 
 export const DEFAULT_SETTINGS: TGInboxSettings = {
@@ -30,4 +32,6 @@ export const DEFAULT_SETTINGS: TGInboxSettings = {
   remove_formatting: false,
   run_after_sync: true,
   daily_note_time_cutoff: "00:00",
+  insert_after_heading: false,
+  target_heading: "## Inbox",
 };
