@@ -3,6 +3,7 @@
 This plugin can receive messages from Telegram bots and add them to Obsidian's daily note.
 
 ## Usage
+
 1. Create a bot using [@BotFather](https://telegram.me/BotFather).
 2. Copy the bot token provided by [@BotFather](https://telegram.me/BotFather).
 3. Paste the token into the `Bot Token` field in the plugin settings.
@@ -12,18 +13,23 @@ This plugin can receive messages from Telegram bots and add them to Obsidian's d
 > When the plugin is not running, messages will be stored on the Telegram server for 24 hours at most. [source](https://core.telegram.org/bots/api#getting-updates)
 
 ## Manually install the plugin
+
 Requires Node.js environment.
 
 ### Build
-- Clone this repo. `git clone https://github.com/icealtria/telegram-inbox`
+
+- Clone this repo. `git clone https://github.com/icealtria/obsidian-telegram-inbox`
 - Run `pnpm i` or another package manager to install dependencies.
 - Run `pnpm build` to build the plugin.
   
 ### Install
+
 - Copy over `main.js`, `manifest.json`, `styles.css` to your vault `VaultFolder/.obsidian/plugins/telegram-inbox/`.
 
 ## Bug Reporting
+
 If you encounter any issues:
+
 1. Press `Ctrl + Shift + I` (Windows/Linux) or `Cmd + Option + I` (macOS) to open the developer console
 2. Look for any error messages in the console
 3. When reporting bugs, please include:
