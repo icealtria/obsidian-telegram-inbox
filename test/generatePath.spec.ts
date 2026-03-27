@@ -18,6 +18,7 @@ const settings: TGInboxSettings = {
     reverse_order: false,
     remove_formatting: false,
     daily_note_time_cutoff: "00:00",
+    daily_note_timezone: "Asia/Shanghai",
     run_after_sync: false
 }
 

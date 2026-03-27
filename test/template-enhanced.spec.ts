@@ -23,6 +23,7 @@ const baseSettings: TGInboxSettings = {
   reverse_order: false,
   remove_formatting: false,
   daily_note_time_cutoff: "00:00",
+  daily_note_timezone: "Asia/Shanghai",
   run_after_sync: false,
 };
 
@@ -217,7 +218,7 @@ describe("generatePath", () => {
 describe("buildPathData", () => {
   test("builds path data for normal message", () => {
     const msg = createMockMessage("Test");
-    const result = buildPathData(msg);
+    const result = buildPathData(msg, baseSettings.daily_note_timezone);
     assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "Test",
@@ -237,7 +238,7 @@ describe("buildPathData", () => {
         username: "testuser",
       },
     });
-    const result = buildPathData(msg);
+    const result = buildPathData(msg, baseSettings.daily_note_timezone);
     assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "Test",
@@ -262,7 +263,7 @@ describe("buildPathData", () => {
         date: 1626847200,
       },
     });
-    const result = buildPathData(msg);
+    const result = buildPathData(msg, baseSettings.daily_note_timezone);
     assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "Test",
@@ -291,7 +292,7 @@ describe("buildPathData", () => {
       date: 1626847200,
       text: "Channel message",
     } as MessageUpdate;
-    const result = buildPathData(msg);
+    const result = buildPathData(msg, baseSettings.daily_note_timezone);
     assert.deepStrictEqual(result, {
       date: "2021-07-21",
       first_name: "📒 Channel",
@@ -306,7 +307,7 @@ describe("buildPathData", () => {
     const morningMsg = createMockMessage("Morning", {
       date: 1626843600, // 2021-07-21 13:00:00
     });
-    const result = buildPathData(morningMsg);
+    const result = buildPathData(morningMsg, baseSettings.daily_note_timezone);
     assert.strictEqual(result.time, "13-00");
   });
 
@@ -319,8 +320,8 @@ describe("buildPathData", () => {
       date: 1626847200, // Original timestamp
     });
     
-    const morningResult = buildPathData(morningMsg);
-    const afternoonResult = buildPathData(afternoonMsg);
+    const morningResult = buildPathData(morningMsg, baseSettings.daily_note_timezone);
+    const afternoonResult = buildPathData(afternoonMsg, baseSettings.daily_note_timezone);
     
     // Times should be different
     assert.notStrictEqual(morningResult.time, afternoonResult.time);

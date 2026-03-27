@@ -10,7 +10,7 @@ This plugin can receive messages from Telegram bots and add them to Obsidian's d
 4. Add your username or telegram id to `Allowed Users`. You can get your id from [@Get_UIDbot](https://t.me/Get_UIDbot)
 5. Click the `Restart` button.
 
-> When the plugin is not running, messages will be stored on the Telegram server for 24 hours at most. [source](https://core.telegram.org/bots/api#getting-updates)
+> When the plugin is not running, messages will be stored on the Telegram server for 24 hours at most. [source](https://core.telegram.org/bots/api#getting-updates:~:text=Incoming%20updates%20are%20stored%20on%20the%20server%20until%20the%20bot%20receives%20them%20either%20way%2C%20but%20they%20will%20not%20be%20kept%20longer%20than%2024%20hours.)
 
 ## Manually install the plugin
 

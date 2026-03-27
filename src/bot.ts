@@ -7,6 +7,7 @@ import {
 } from "./bot/middleware";
 import { VaultWriter } from "./bot/vault-writer";
 import { setupCommands, setupMessageHandlers } from "./bot/handlers";
+import { RuntimeStateStore } from "./state";
 
 const DEFAULT_OFFSET = 1;
 
@@ -16,10 +17,12 @@ export class TelegramBot {
   settings: TGInboxSettings;
   update_id = 0;
   private vaultWriter: VaultWriter;
+  private runtimeStateStore: RuntimeStateStore;
 
-  constructor(vault: Vault, settings: TGInboxSettings) {
+  constructor(vault: Vault, settings: TGInboxSettings, runtimeStateStore: RuntimeStateStore) {
     this.vault = vault;
     this.settings = settings;
+    this.runtimeStateStore = runtimeStateStore;
     this.vaultWriter = new VaultWriter(vault, settings);
     this.bot = new Bot(settings.token);
 
@@ -42,8 +45,8 @@ export class TelegramBot {
   }
 
   private setupHandlers(): void {
-    setupCommands(this.bot, this.settings, this.vaultWriter);
-    setupMessageHandlers(this.bot, this.settings, this.vaultWriter);
+    setupCommands(this.bot, this.settings, this.vaultWriter, this.runtimeStateStore);
+    setupMessageHandlers(this.bot, this.settings, this.vaultWriter, this.runtimeStateStore);
   }
 
   private setupErrorHandling(): void {
@@ -58,7 +61,9 @@ export class TelegramBot {
 
   async getUpdates(): Promise<void> {
     try {
-      const offset = this.update_id ? this.update_id + 1 : DEFAULT_OFFSET;
+      const persistedUpdateId = this.runtimeStateStore.getLastProcessedUpdateId();
+      const latestKnownUpdateId = Math.max(this.update_id, persistedUpdateId);
+      const offset = latestKnownUpdateId ? latestKnownUpdateId + 1 : DEFAULT_OFFSET;
       const updates = await this.bot.api.getUpdates({ offset });
 
       for (const update of updates) {
@@ -76,5 +81,32 @@ export class TelegramBot {
       console.error("Error getting updates:", error);
       throw error;
     }
+  }
+
+  /**
+   * Processes retry queue entries that are due.
+   * Returns number of items attempted in this pass.
+   */
+  async retryFailedQueue(): Promise<number> {
+    const pending = this.runtimeStateStore.getReadyRetries();
+
+    for (const item of pending) {
+      try {
+        await this.vaultWriter.insertMessageToVault(item.content, item.msg);
+        await this.runtimeStateStore.markProcessed(item.message_key, item.update_id);
+      } catch (error) {
+        await this.runtimeStateStore.markRetryAttemptFailure(
+          item.id,
+          (error as Error).message
+        );
+      }
+    }
+
+    return pending.length;
+  }
+
+  /** Returns current retry queue size for status/reporting. */
+  getRetryQueueSize(): number {
+    return this.runtimeStateStore.getRetryQueueSize();
   }
 }

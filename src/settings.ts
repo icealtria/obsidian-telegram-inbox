@@ -1,7 +1,7 @@
 import { type App, PluginSettingTab, Setting } from "obsidian";
 import type TGInbox from "./main";
 import * as Mustache from 'mustache';
-import { ActionAfterReception } from "./settings/types";
+import type { ActionAfterReception } from "./settings/types";
 import { getSyncStatus, hasSyncPlugin } from "./utils/sync";
 
 export class TGInboxSettingTab extends PluginSettingTab {
@@ -85,6 +85,60 @@ export class TGInboxSettingTab extends PluginSettingTab {
           })
       );
 
+    new Setting(containerEl)
+      .setName("Media filters")
+      .setHeading();
+
+    new Setting(containerEl)
+      .setName("Voice notes")
+      .setDesc("Receive Telegram voice notes.")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.media_filter_voice).onChange(async (value) => {
+          this.plugin.settings.media_filter_voice = value;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("Audio files")
+      .setDesc("Receive Telegram audio files.")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.media_filter_audio).onChange(async (value) => {
+          this.plugin.settings.media_filter_audio = value;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("Photos")
+      .setDesc("Receive Telegram photos.")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.media_filter_photo).onChange(async (value) => {
+          this.plugin.settings.media_filter_photo = value;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("Videos")
+      .setDesc("Receive Telegram videos.")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.media_filter_video).onChange(async (value) => {
+          this.plugin.settings.media_filter_video = value;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("Documents")
+      .setDesc("Receive Telegram documents.")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.media_filter_document).onChange(async (value) => {
+          this.plugin.settings.media_filter_document = value;
+          await this.plugin.saveSettings();
+        })
+      );
+
     const downloadDirContainer = containerEl.createDiv({
       cls: "tg-inbox-setting-collapsible"
     });
@@ -147,6 +201,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
         dropdown
           .addOption("react", "React with ❤")
           .addOption("delete", "Delete message")
+          .addOption("quiet", "Do nothing (quiet mode)")
           .setValue(this.plugin.settings.action_after_reception)
           .onChange(async (value: ActionAfterReception) => {
             this.plugin.settings.action_after_reception = value;
@@ -297,6 +352,17 @@ export class TGInboxSettingTab extends PluginSettingTab {
           });
       });
 
+    const timezoneSetting = new Setting(timeCutoffContainer)
+      .setName("Daily note timezone")
+      .setDesc("IANA timezone used for daily note cutoff (e.g. Europe/Paris). Leave empty to use system timezone.")
+      .addText((text) => {
+        text.setPlaceholder("System timezone")
+          .setValue(this.plugin.settings.daily_note_timezone)
+          .onChange((value) => {
+            this.validateAndSetTimezone(value, text.inputEl, timezoneSetting);
+          });
+      });
+
 
     const runAfterSyncSetting = new Setting(containerEl)
       .setName("Run after vault synced")
@@ -405,6 +471,28 @@ export class TGInboxSettingTab extends PluginSettingTab {
     const existingError = setting.descEl.querySelector(".tg-inbox-error-text");
     if (existingError) {
       existingError.remove();
+    }
+  }
+
+  private validateAndSetTimezone(value: string, inputEl: HTMLInputElement, setting: Setting) {
+    const timezone = value.trim();
+    if (!timezone) {
+      inputEl.classList.remove("tg-inbox-time-input-error");
+      this.removeErrorText(setting);
+      this.plugin.settings.daily_note_timezone = "";
+      this.plugin.saveSettings();
+      return;
+    }
+
+    try {
+      new Intl.DateTimeFormat(undefined, { timeZone: timezone });
+      inputEl.classList.remove("tg-inbox-time-input-error");
+      this.removeErrorText(setting);
+      this.plugin.settings.daily_note_timezone = timezone;
+      this.plugin.saveSettings();
+    } catch {
+      inputEl.classList.add("tg-inbox-time-input-error");
+      this.showErrorText(setting, "Invalid timezone. Use IANA format like Europe/Paris.");
     }
   }
 }

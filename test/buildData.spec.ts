@@ -10,6 +10,11 @@ const settings: TGInboxSettings = {
     allow_users: [],
     download_dir: "",
     download_media: false,
+    media_filter_voice: true,
+    media_filter_audio: true,
+    media_filter_photo: true,
+    media_filter_video: true,
+    media_filter_document: true,
     message_template: "",
     markdown_escaper: false,
     is_custom_file: false,
@@ -18,6 +23,10 @@ const settings: TGInboxSettings = {
     reverse_order: false,
     remove_formatting: false,
     daily_note_time_cutoff: "00:00",
+    daily_note_timezone: "Asia/Shanghai",
+    insert_after_heading: false,
+    target_heading: "## Inbox",
+    action_after_reception: "react",
     run_after_sync: false,
 }
 

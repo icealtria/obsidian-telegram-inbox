@@ -3,6 +3,8 @@ import { describe, test } from "node:test";
 import { type PathData, buildPathData } from "../src/utils/template";
 import { msg, msgFowardUser, channel_post, channel_post_fw } from "./msgs";
 
+const timezone = "Asia/Shanghai";
+
 describe('generatePath', () => {
     test('normal message', () => {
         const data: PathData = {
@@ -14,7 +16,7 @@ describe('generatePath', () => {
             origin_name: "Neko ✨"
         }
 
-        assert.deepStrictEqual(buildPathData(msg), data)
+        assert.deepStrictEqual(buildPathData(msg, timezone), data)
     })
 
     test('forward message', () => {
@@ -28,7 +30,7 @@ describe('generatePath', () => {
             origin_name: "猫"
         }
 
-        assert.deepStrictEqual(buildPathData(msgFowardUser), data)
+        assert.deepStrictEqual(buildPathData(msgFowardUser, timezone), data)
     })
 
     test('channel post', () => {
@@ -40,7 +42,7 @@ describe('generatePath', () => {
             user_id: -1001234567890,
             origin_name: "📒"
         }
-        assert.deepStrictEqual(buildPathData(channel_post), data)
+        assert.deepStrictEqual(buildPathData(channel_post, timezone), data)
     })
 
     test('channel post forward', () => {
@@ -52,6 +54,6 @@ describe('generatePath', () => {
             user_id: -1001234567890,
             origin_name: "Haha"
         }
-        assert.deepStrictEqual(buildPathData(channel_post_fw), data)
+        assert.deepStrictEqual(buildPathData(channel_post_fw, timezone), data)
     })
 })

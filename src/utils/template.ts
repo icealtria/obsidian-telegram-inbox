@@ -46,7 +46,7 @@ export function buildMsgData(
   setting: TGInboxSettings
 ): MessageData {
   const forwardOrigin = getForwardOrigin(msg);
-  const msgDate = moment(msg.date * 1000);
+  const msgDate = getMessageDateForTimezone(msg.date, setting.daily_note_timezone);
 
   return {
     message_id: msg.message_id,
@@ -64,7 +64,7 @@ export function generatePath(
   msg: MessageUpdate,
   setting: TGInboxSettings
 ): string {
-  const data = sanitizePathData(buildPathData(msg));
+  const data = sanitizePathData(buildPathData(msg, setting.daily_note_timezone));
   return Mustache.render(setting.custom_file_path, data);
 }
 
@@ -77,8 +77,8 @@ function sanitizePathData(data: PathData): PathData {
   };
 }
 
-export function buildPathData(msg: MessageUpdate): PathData {
-  const msgDate = moment(msg.date * 1000);
+export function buildPathData(msg: MessageUpdate, timezone = ""): PathData {
+  const msgDate = getMessageDateForTimezone(msg.date, timezone);
   const forwardOrigin = getForwardOrigin(msg);
 
   return {
@@ -89,6 +89,52 @@ export function buildPathData(msg: MessageUpdate): PathData {
     user_id: msg.from?.id ?? msg.chat.id,
     origin_name: forwardOrigin?.origin_name ?? getSenderName(msg),
   };
+}
+
+function getMessageDateForTimezone(
+  unixSeconds: number,
+  timezone: string
+): moment.Moment {
+  const date = moment(unixSeconds * 1000);
+  const normalizedTimezone = timezone.trim();
+  if (!normalizedTimezone) {
+    return date;
+  }
+
+  try {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: normalizedTimezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    });
+    const parts = formatter.formatToParts(date.toDate());
+    const year = getPart(parts, "year");
+    const month = getPart(parts, "month");
+    const day = getPart(parts, "day");
+    const hour = getPart(parts, "hour");
+    const minute = getPart(parts, "minute");
+    const second = getPart(parts, "second");
+
+    return moment(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+  } catch (error) {
+    console.warn(
+      `Invalid timezone '${normalizedTimezone}' for message formatting, using system timezone.`,
+      error
+    );
+    return date;
+  }
+}
+
+function getPart(
+  parts: Intl.DateTimeFormatPart[],
+  type: Intl.DateTimeFormatPartTypes
+): string {
+  return parts.find((part) => part.type === type)?.value ?? "00";
 }
 
 interface ForwardOriginInfo {

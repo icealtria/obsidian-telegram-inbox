@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -p tsconfig.build.json -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"deploy:dev": "npm run build && node scripts/deploy-plugin.mjs",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"lint": "oxlint src",
 		"test": "node --test --require tsx/cjs --require ./test/register-obsidian.cjs \"test/**/*.spec.ts\""

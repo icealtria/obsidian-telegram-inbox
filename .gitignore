@@ -18,5 +18,17 @@ main.js
 # obsidian
 data.json
 
+# local environment settings
+.env
+.env.*
+!.env.example
+
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+# Exclude package locks
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+bun.lock
