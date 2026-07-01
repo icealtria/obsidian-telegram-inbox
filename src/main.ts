@@ -23,13 +23,21 @@ export default class TGInbox extends Plugin {
       });
     }
 
-    if (this.settings.run_after_sync) {
-      runAfterSync.call(this, () => {
+    // Defer bot startup until the workspace (and therefore the vault file
+    // index) is ready. Otherwise the queued Telegram updates that arrive in
+    // the burst right after `onload` are processed before
+    // getAbstractFileByPath/getFileByPath work, which makes createTargetFile
+    // spuriously try to re-create an existing folder ("Folder already
+    // exists") and silently drop those messages.
+    this.app.workspace.onLayoutReady(() => {
+      if (this.settings.run_after_sync) {
+        runAfterSync.call(this, () => {
+          this.initBot();
+        });
+      } else {
         this.initBot();
-      });
-    } else {
-      this.initBot();
-    }
+      }
+    });
   }
 
   addCommands() {

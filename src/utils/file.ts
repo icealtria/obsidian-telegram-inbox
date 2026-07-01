@@ -55,7 +55,11 @@ async function getDailyNoteFile(
     msg: MessageUpdate
 ): Promise<TFile> {
     const messageDate = moment(msg.date * 1000);
-    return await getDiaryWithTimeCutoff(settings, messageDate);
+    const file = await getDiaryWithTimeCutoff(settings, messageDate);
+    if (!file) {
+        throw new Error("Failed to resolve or create the daily note");
+    }
+    return file;
 }
 
 async function createTargetFile(vault: Vault, filePath: string): Promise<TFile> {
@@ -67,21 +71,45 @@ async function createTargetFile(vault: Vault, filePath: string): Promise<TFile> 
         await ensureDirExists(vault, dirPath);
     }
 
-    const file = await vault.create(filePath, "");
-    console.log(`File created: ${filePath}`);
-    return file;
+    try {
+        const file = await vault.create(filePath, "");
+        console.log(`File created: ${filePath}`);
+        return file;
+    } catch (e) {
+        // The file may already exist on disk (e.g. the index hadn't caught up
+        // when getFileByPath was consulted). Re-resolve it instead of dropping
+        // the message.
+        const existing = vault.getFileByPath(filePath);
+        if (existing) {
+            return existing;
+        }
+        throw e;
+    }
 }
 
 async function ensureDirExists(vault: Vault, dirPath: string): Promise<void> {
-    const dir = vault.getAbstractFileByPath(dirPath);
-
-    if (dir) {
+    if (vault.getAbstractFileByPath(dirPath)) {
         console.debug(`Folder already exists: ${dirPath}`);
         return;
     }
 
-    await vault.createFolder(dirPath);
-    console.log(`Folder created: ${dirPath}`);
+    // The metadata index can lag the filesystem (notably during the startup
+    // burst before the workspace is ready), so a folder that physically
+    // exists may not resolve above. Check the adapter and treat an
+    // "already exists" error as success so createFolder can't drop a message.
+    try {
+        if (await vault.adapter.exists(dirPath)) {
+            return;
+        }
+        await vault.createFolder(dirPath);
+        console.log(`Folder created: ${dirPath}`);
+    } catch (e) {
+        if (e instanceof Error && /already exists/i.test(e.message)) {
+            console.debug(`Folder already exists (race): ${dirPath}`);
+            return;
+        }
+        throw e;
+    }
 }
 
 function getDirPath(filePath: string): string {
