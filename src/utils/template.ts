@@ -22,6 +22,7 @@ export interface MessageData {
   username?: string;
   user_id: number;
   origin_link?: string;
+  media?: string;
 }
 
 export interface PathData {
@@ -31,13 +32,15 @@ export interface PathData {
   time: string;
   user_id: number;
   origin_name: string;
+  message_id: number;
 }
 
 export function generateContentFromTemplate(
   msg: MessageUpdate,
-  setting: TGInboxSettings
+  setting: TGInboxSettings,
+  media = ""
 ): string {
-  const data = buildMsgData(msg, setting);
+  const data = { ...buildMsgData(msg, setting), media };
   return Mustache.render(setting.message_template, data);
 }
 
@@ -88,6 +91,7 @@ export function buildPathData(msg: MessageUpdate): PathData {
     time: msgDate.format(PATH_TIME_FORMAT),
     user_id: msg.from?.id ?? msg.chat.id,
     origin_name: forwardOrigin?.origin_name ?? getSenderName(msg),
+    message_id: msg.message_id,
   };
 }
 

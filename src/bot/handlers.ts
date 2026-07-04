@@ -62,7 +62,7 @@ export function setupMessageHandlers(bot: Bot, settings: TGInboxSettings, vaultW
 
   bot.on(["message:media", "channel_post:media"], async (ctx) => {
     const msg = ctx.msg as MessageUpdate;
-    let content = generateContentFromTemplate(msg, settings);
+    let mediaEmbed = "";
 
     if (settings.download_media) {
       const file = await ctx.getFile();
@@ -78,14 +78,27 @@ export function setupMessageHandlers(bot: Bot, settings: TGInboxSettings, vaultW
       );
 
       if (downloadResult) {
-        content = `![[${filename_ext}]]\n${content}`;
+        mediaEmbed = `![[${filename_ext}]]`;
       } else {
         console.error(`Failed to download media. File: ${filename_ext}, URL: ${url}`);
         ctx.reply(`Failed to download media. File: ${filename_ext}, URL: ${url}`);
       }
     }
 
-    if (!settings.download_media && content.length === 0) {
+    // The template can place the embed itself via {{media}} (kept unescaped),
+    // so frontmatter authored in the template stays at the top of the note.
+    let content = generateContentFromTemplate(msg, settings, mediaEmbed);
+
+    // Backward-compat: if the template doesn't reference {{media}}, fall back to
+    // the legacy behavior of prepending the embed.
+    const templateUsesMedia = /\{\{[{&]?\s*media\s*\}{2,3}/.test(
+      settings.message_template ?? ""
+    );
+    if (mediaEmbed && !templateUsesMedia) {
+      content = `${mediaEmbed}\n${content}`;
+    }
+
+    if (content.length === 0) {
       console.debug("No content to insert. Skipping.");
       return;
     }
