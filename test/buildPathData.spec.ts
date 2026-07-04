@@ -11,7 +11,8 @@ describe('generatePath', () => {
             name: "Neko ✨",
             time: "14-00",
             user_id: 12345,
-            origin_name: "Neko ✨"
+            origin_name: "Neko ✨",
+            message_id: 1234
         }
 
         assert.deepStrictEqual(buildPathData(msg), data)
@@ -25,7 +26,8 @@ describe('generatePath', () => {
             name: "Neko ✨",
             time: "14-00",
             user_id: 12345,
-            origin_name: "猫"
+            origin_name: "猫",
+            message_id: 1234
         }
 
         assert.deepStrictEqual(buildPathData(msgFowardUser), data)
@@ -38,7 +40,8 @@ describe('generatePath', () => {
             name: "📒",
             time: "13-03",
             user_id: -1001234567890,
-            origin_name: "📒"
+            origin_name: "📒",
+            message_id: 263
         }
         assert.deepStrictEqual(buildPathData(channel_post), data)
     })
@@ -50,7 +53,8 @@ describe('generatePath', () => {
             name: "📒",
             time: "00-40",
             user_id: -1001234567890,
-            origin_name: "Haha"
+            origin_name: "Haha",
+            message_id: 259
         }
         assert.deepStrictEqual(buildPathData(channel_post_fw), data)
     })

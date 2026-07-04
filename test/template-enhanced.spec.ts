@@ -136,6 +136,26 @@ describe("generateContentFromTemplate", () => {
     const result = generateContentFromTemplate(msg, settings);
     assert.strictEqual(result, " Test");
   });
+
+  test("injects the media argument into {{media}}", () => {
+    const settings = {
+      ...baseSettings,
+      message_template: "{{{media}}}\n{{text}}",
+    };
+    const msg = createMockMessage("Hello world");
+    const result = generateContentFromTemplate(msg, settings, "![[pic.jpg]]");
+    assert.strictEqual(result, "![[pic.jpg]]\nHello world");
+  });
+
+  test("media defaults to empty when not provided", () => {
+    const settings = {
+      ...baseSettings,
+      message_template: "{{text}}{{{media}}}",
+    };
+    const msg = createMockMessage("Hello world");
+    const result = generateContentFromTemplate(msg, settings);
+    assert.strictEqual(result, "Hello world");
+  });
 });
 
 describe("generatePath", () => {
@@ -212,6 +232,16 @@ describe("generatePath", () => {
     const result = generatePath(msg, settings);
     assert.strictEqual(result, "Original Sender/2021-07-21");
   });
+
+  test("includes message_id in path", () => {
+    const settings = {
+      ...baseSettings,
+      custom_file_path: "raw/tg-{{date}}-{{message_id}}",
+    };
+    const msg = createMockMessage("Test");
+    const result = generatePath(msg, settings);
+    assert.strictEqual(result, "raw/tg-2021-07-21-1");
+  });
 });
 
 describe("buildPathData", () => {
@@ -225,6 +255,7 @@ describe("buildPathData", () => {
       time: "14-00",
       user_id: 123,
       origin_name: "Test User",
+      message_id: 1,
     });
   });
 
@@ -245,6 +276,7 @@ describe("buildPathData", () => {
       time: "14-00",
       user_id: 123,
       origin_name: "Test",
+      message_id: 1,
     });
   });
 
@@ -270,6 +302,7 @@ describe("buildPathData", () => {
       time: "14-00",
       user_id: 123,
       origin_name: "Original Sender",
+      message_id: 1,
     });
   });
 
@@ -299,6 +332,7 @@ describe("buildPathData", () => {
       time: "14-00",
       user_id: -1001234567890,
       origin_name: "📒 Channel",
+      message_id: 1,
     });
   });
 
