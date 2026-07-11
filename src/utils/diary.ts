@@ -1,4 +1,4 @@
-import { moment } from "obsidian";
+import { moment, type TFile } from "obsidian";
 import {
   createDailyNote,
   getAllDailyNotes,
@@ -11,7 +11,7 @@ const DEFAULT_CUTOFF = "00:00";
 export async function getDiaryWithTimeCutoff(
   settings: TGInboxSettings,
   messageDate?: moment.Moment
-) {
+): Promise<TFile> {
   const date = messageDate || moment();
   const adjustedDate = getAdjustedDateForTimeCutoff(
     date,
@@ -26,7 +26,15 @@ export async function getDiaryWithTimeCutoff(
   }
 
   console.log("Daily note not found, creating new one");
-  return await createDailyNote(adjustedDate);
+  const createdDailyNote = await createDailyNote(adjustedDate);
+
+  if (createdDailyNote) {
+    return createdDailyNote;
+  }
+
+  throw new Error(
+    `Failed to create daily note for ${adjustedDate.format("YYYY-MM-DD")}`
+  );
 }
 
 export function getAdjustedDateForTimeCutoff(
