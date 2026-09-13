@@ -34,13 +34,41 @@ export async function insertMessageAtTop(vault: Vault, message: string, tFile: T
   });
 }
 
-export async function insertMessageAfterHeading(vault: Vault, message: string, tFile: TFile, heading: string): Promise<void> {
+function getHeadingLevel(line: string): number {
+  const match = line.trim().match(/^(#+)/);
+  return match ? match[1].length : 0;
+}
+
+export async function insertMessageAfterHeading(vault: Vault, message: string, tFile: TFile, heading: string, reverse = false): Promise<void> {
   await vault.process(tFile, (data) => {
     const lines = data.split('\n');
     const headingIndex = lines.findIndex(line => line.trim() === heading.trim());
 
     if (headingIndex !== -1) {
-      lines.splice(headingIndex + 1, 0, message);
+      if (reverse) {
+        lines.splice(headingIndex + 1, 0, message);
+      } else {
+        const targetLevel = getHeadingLevel(lines[headingIndex]);
+        let sectionEnd = lines.length;
+
+        for (let i = headingIndex + 1; i < lines.length; i++) {
+          const lineLevel = getHeadingLevel(lines[i]);
+          if (lineLevel > 0 && lineLevel <= targetLevel) {
+            sectionEnd = i;
+            break;
+          }
+        }
+
+        let insertIndex = headingIndex + 1;
+        for (let i = sectionEnd - 1; i > headingIndex; i--) {
+          if (lines[i].trim() !== "") {
+            insertIndex = i + 1;
+            break;
+          }
+        }
+
+        lines.splice(insertIndex, 0, message);
+      }
       return lines.join('\n');
     }
 

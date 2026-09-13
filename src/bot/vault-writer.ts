@@ -20,7 +20,7 @@ export class VaultWriter {
       const savedPath = await getSavePath(this.vault, this.settings, msg)
 
       if (this.settings.insert_after_heading && this.settings.target_heading) {
-        await insertMessageAfterHeading(this.vault, content, savedPath, this.settings.target_heading);
+        await insertMessageAfterHeading(this.vault, content, savedPath, this.settings.target_heading, this.settings.reverse_order);
       } else if (this.settings.reverse_order) {
         await insertMessageAtTop(this.vault, content, savedPath);
       } else {

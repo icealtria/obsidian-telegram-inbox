@@ -169,7 +169,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Insert after heading")
-      .setDesc("Insert messages after a specific heading. This will override the 'Reverse order' setting and always insert messages after the heading.")
+      .setDesc("Insert messages after a specific heading.")
       .addToggle((toggle) => {
         toggle.setValue(this.plugin.settings.insert_after_heading)
           .onChange(async (value) => {
