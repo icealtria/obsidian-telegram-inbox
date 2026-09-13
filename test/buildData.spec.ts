@@ -2,30 +2,12 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { type MessageData, buildMsgData } from "../src/utils/template";
 import { msg, msgHidden, msgFowardUser, msgCh, channel_post_fw, channel_post } from "./msgs";
-import type { TGInboxSettings } from "src/settings/types";
+import { DEFAULT_SETTINGS, type TGInboxSettings } from "src/settings/types";
 
-const settings: TGInboxSettings = {
-    token: "",
-    marker: "",
-    allow_users: [],
-    download_dir: "",
-    download_media: false,
-    message_template: "",
-    markdown_escaper: false,
-    is_custom_file: false,
-    custom_file_path: "",
-    disable_auto_reception: true,
-    reverse_order: false,
-    remove_formatting: false,
-    daily_note_time_cutoff: "00:00",
-    run_after_sync: false,
-}
+const settings: TGInboxSettings = { ...DEFAULT_SETTINGS, disable_auto_reception: true };
 
-
-describe('buildData', () => {
-
-    test('forward message', () => {
-
+describe("buildData", () => {
+    test("forward message", () => {
         const data: MessageData = {
             origin_name: "猫",
             origin_username: "cat",
@@ -35,15 +17,13 @@ describe('buildData', () => {
             user_id: 12345,
             date: "2021-07-21",
             time: "14:00",
-            username: "neko"
-        }
+            username: "neko",
+        };
 
-        assert.deepStrictEqual(buildMsgData(msgFowardUser, settings), data)
-    })
+        assert.deepStrictEqual(buildMsgData(msgFowardUser, settings), data);
+    });
 
-
-    test('hidden user', () => {
-
+    test("hidden user", () => {
         const data: MessageData = {
             origin_name: "Black Cat",
             origin_username: "",
@@ -54,13 +34,12 @@ describe('buildData', () => {
             username: "neko",
             user_id: 12345,
             message_id: 1234,
-        }
+        };
 
-        assert.deepStrictEqual(buildMsgData(msgHidden, settings), data)
-    })
+        assert.deepStrictEqual(buildMsgData(msgHidden, settings), data);
+    });
 
-    test('without forward_origin', () => {
-
+    test("without forward_origin", () => {
         const data: MessageData = {
             text: "I am a cat.",
             date: "2021-07-21",
@@ -69,8 +48,8 @@ describe('buildData', () => {
             username: "neko",
             user_id: 12345,
             message_id: 1234,
-        }
-        assert.deepStrictEqual(buildMsgData(msg, settings), data)
+        };
+        assert.deepStrictEqual(buildMsgData(msg, settings), data);
     });
 
     test("Ch", () => {
@@ -84,11 +63,11 @@ describe('buildData', () => {
             name: "Neko ✨",
             username: "neko",
             user_id: 12345,
-            origin_link: "https://t.me/miaowu/42065"
-        }
+            origin_link: "https://t.me/miaowu/42065",
+        };
 
-        assert.deepStrictEqual(buildMsgData(msgCh, settings), data)
-    })
+        assert.deepStrictEqual(buildMsgData(msgCh, settings), data);
+    });
 
     test("channel post", () => {
         const data: MessageData = {
@@ -99,13 +78,12 @@ describe('buildData', () => {
             name: "📒",
             username: "rin",
             user_id: -1001234567890,
-        }
+        };
 
-        assert.deepStrictEqual(buildMsgData(channel_post, settings), data)
-    })
+        assert.deepStrictEqual(buildMsgData(channel_post, settings), data);
+    });
 
     test("channel post forward", () => {
-
         const data: MessageData = {
             origin_name: "Haha",
             origin_username: "haha",
@@ -116,9 +94,8 @@ describe('buildData', () => {
             name: "📒",
             username: "rin",
             user_id: -1001234567890,
-            origin_link: "https://t.me/haha/2174789"
-        }
-        assert.deepStrictEqual(buildMsgData(channel_post_fw, settings), data)
-
-    })
+            origin_link: "https://t.me/haha/2174789",
+        };
+        assert.deepStrictEqual(buildMsgData(channel_post_fw, settings), data);
+    });
 });
