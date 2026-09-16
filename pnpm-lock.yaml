@@ -11,9 +11,6 @@ importers:
       '@telegraf/entity':
         specifier: ^0.5.0
         version: 0.5.0
-      async-mutex:
-        specifier: ^0.5.0
-        version: 0.5.0
       grammy:
         specifier: ^1.36.3
         version: 1.36.3
@@ -425,9 +422,6 @@ packages:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
     engines: {node: '>=6.5'}
 
-  async-mutex@0.5.0:
-    resolution: {integrity: sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA==}
-
   builtin-modules@3.3.0:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
     engines: {node: '>=6'}
@@ -785,10 +779,6 @@ snapshots:
   abort-controller@3.0.0:
     dependencies:
       event-target-shim: 5.0.1
-
-  async-mutex@0.5.0:
-    dependencies:
-      tslib: 2.4.0
 
   builtin-modules@3.3.0: {}
 
