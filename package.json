@@ -1,6 +1,6 @@
 {
     "name": "telegram-inbox",
-    "version": "1.9.1",
+    "version": "1.9.2",
     "description": "Receive messages from Telegram bot and add them to daily note.",
     "keywords": [],
     "license": "GPL-3.0-only",
