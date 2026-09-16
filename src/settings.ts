@@ -64,7 +64,10 @@ export class TGInboxSettingTab extends PluginSettingTab {
                     .setPlaceholder("Enter Telegram usernames or id")
                     .setValue(this.plugin.settings.allow_users.join(","))
                     .onChange(async (value) => {
-                        this.plugin.settings.allow_users = value.split(",");
+                        this.plugin.settings.allow_users = value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean);
                         await this.plugin.saveSettings();
                     }),
             );
