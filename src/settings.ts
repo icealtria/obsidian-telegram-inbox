@@ -1,6 +1,6 @@
 import { type App, PluginSettingTab, Setting } from "obsidian";
 import type TGInbox from "./main";
-import * as Mustache from "mustache";
+import Handlebars from "handlebars";
 import { ActionAfterReception } from "./settings/types";
 import { getSyncStatus, hasSyncPlugin } from "./utils/sync";
 
@@ -124,7 +124,7 @@ export class TGInboxSettingTab extends PluginSettingTab {
             .addButton((button) => {
                 button.setButtonText("Validate").onClick(() => {
                     try {
-                        Mustache.parse(this.plugin.settings.message_template);
+                        Handlebars.parse(this.plugin.settings.message_template);
                         templateValidStatus.setText(
                             "✅ Template format is correct. This is to ensure that the program does not crash, doesn't mean the fields are correct.",
                         );
